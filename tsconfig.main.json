@@ -20,6 +20,6 @@
     "noUnusedParameters": true,
     "noFallthroughCasesInSwitch": true
   },
-  "include": ["src/main/**/*", "src/preload/**/*"],
+  "include": ["src/main/**/*", "src/preload/**/*", "src/shared/**/*"],
   "exclude": ["dist", "dist-electron", "release", "node_modules"]
 }

@@ -43,8 +43,16 @@ const GpsWritePanel: React.FC<GpsWritePanelProps> = ({ currentCoordinates }) => 
     if (!currentCoordinates || selectedPhotos.length === 0) return;
 
     // Check if Electron API is available
+    console.log('GpsWritePanel - Checking Electron API...');
+    console.log('window.electron:', window.electron);
+    console.log('window.electron.writeGpsToPhotos:', window.electron?.writeGpsToPhotos);
+    
     if (!window.electron || typeof window.electron.writeGpsToPhotos !== 'function') {
-      alert('GPS 寫入功能需要在 Electron 桌面環境中執行');
+      const errorMsg = !window.electron 
+        ? 'GPS 寫入功能需要在 Electron 桌面環境中執行\n\n錯誤: window.electron 未定義'
+        : `GPS 寫入功能需要在 Electron 桌面環境中執行\n\n錯誤: writeGpsToPhotos 方法不存在或類型錯誤 (${typeof window.electron.writeGpsToPhotos})`;
+      alert(errorMsg);
+      console.error(errorMsg);
       return;
     }
 

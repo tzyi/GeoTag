@@ -20,21 +20,8 @@ export default defineConfig({
           },
         },
       },
-      {
-        entry: 'src/preload/index.ts',
-        onstart(options) {
-          options.reload();
-        },
-        vite: {
-          build: {
-            outDir: 'dist-electron/preload',
-            target: 'node20',
-            rollupOptions: {
-              external: ['electron'],
-            },
-          },
-        },
-      },
+      // Preload is manually compiled to avoid vite-plugin-electron issues with CommonJS
+      // The preload file is located at dist-electron/preload/index.cjs
     ]),
     renderer(),
   ],

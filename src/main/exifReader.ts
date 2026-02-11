@@ -8,7 +8,7 @@ import type { ExifData } from '@shared/types';
 export async function readExif(photoPath: string): Promise<ExifData | null> {
   try {
     const buffer = await readFile(photoPath);
-    const tags = ExifReader.load(buffer, { expanded: true });
+    const tags = ExifReader.load(buffer, { expanded: true }) as any;
 
     const exifData: ExifData = {};
 

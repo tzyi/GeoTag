@@ -1,3 +1,4 @@
+// @ts-ignore - piexifjs doesn't have type definitions
 import piexif from 'piexifjs';
 import { readFile, writeFile } from 'fs/promises';
 import type { GpsCoordinates } from '@shared/types';
@@ -5,7 +6,7 @@ import type { GpsCoordinates } from '@shared/types';
 /**
  * 將十進制座標轉換為 EXIF GPS 格式
  */
-function decimalToDMS(decimal: number, isLongitude: boolean): [number[], string] {
+function decimalToDMS(decimal: number, isLongitude: boolean): [any[], string] {
   const absolute = Math.abs(decimal);
   const degrees = Math.floor(absolute);
   const minutesFloat = (absolute - degrees) * 60;

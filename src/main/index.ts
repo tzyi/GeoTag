@@ -1,4 +1,3 @@
-
 import { app, BrowserWindow, ipcMain } from 'electron';
 import path from 'path';
 import { fileURLToPath } from 'url';
@@ -12,13 +11,15 @@ const __dirname = path.dirname(__filename);
 let mainWindow: BrowserWindow | null = null;
 
 const createWindow = () => {
+  const preloadPath = path.join(__dirname, '../preload/index.cjs');
+
   mainWindow = new BrowserWindow({
     width: 1400,
     height: 900,
     minWidth: 1200,
     minHeight: 700,
     webPreferences: {
-      preload: path.join(__dirname, '../preload/index.js'),
+      preload: preloadPath,
       contextIsolation: true,
       nodeIntegration: false,
       sandbox: false,
@@ -26,6 +27,13 @@ const createWindow = () => {
     backgroundColor: '#101822',
     titleBarStyle: 'default',
     show: false,
+  });
+
+  // Log any preload errors
+  mainWindow.webContents.on('preload-error', (event, preloadPath, error) => {
+    console.error('[main] ❌ PRELOAD ERROR:');
+    console.error('[main] preloadPath:', preloadPath);
+    console.error('[main] error:', error);
   });
 
   // Load the app

@@ -1,5 +1,5 @@
 import { dialog, nativeImage } from 'electron';
-import { stat } from 'fs/promises';
+import { stat, readFile } from 'fs/promises';
 import path from 'path';
 import { v4 as uuidv4 } from 'uuid';
 import type { Photo } from '@shared/types';
