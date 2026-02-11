@@ -35,6 +35,10 @@ GeoTag Pro 是一個專業的桌面應用程式，讓您輕鬆為照片批量添
 - 2GB RAM 以上
 - 500MB 可用硬碟空間
 
+### 執行EXE安裝檔
+1. 下載最新版本的執行檔（.exe）從 [Releases](https://github.com/tzyi/GeoTag/releases/tag/v1.0.0) 中下載。
+2. 雙擊執行檔，即可使用。
+
 ### 從原始碼安裝
 
 ```bash
