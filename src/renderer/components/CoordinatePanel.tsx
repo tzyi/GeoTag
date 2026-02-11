@@ -1,12 +1,42 @@
 import React, { useState } from 'react';
 import type { GpsCoordinates } from '@shared/types';
 
+interface WriteGpsButtonProps {
+  coordinates: GpsCoordinates;
+  selectedCount: number;
+  isWriting: boolean;
+  onWriteGps: () => void;
+}
+
+const WriteGpsButton: React.FC<WriteGpsButtonProps> = ({ coordinates, selectedCount, isWriting, onWriteGps }) => (
+  <button
+    onClick={onWriteGps}
+    disabled={isWriting || selectedCount === 0}
+    className="w-full mt-4 px-6 py-3 bg-primary hover:bg-primary/90 disabled:bg-slate-400 text-white font-semibold rounded-lg transition-colors flex items-center justify-center gap-2"
+  >
+    {isWriting ? (
+      <>
+        <span className="material-icons animate-spin text-sm">sync</span>
+        寫入中...
+      </>
+    ) : (
+      <>
+        <span className="material-icons text-sm">location_on</span>
+        寫入 GPS 至所選照片 ({selectedCount})
+      </>
+    )}
+  </button>
+);
+
 interface CoordinatePanelProps {
   coordinates: GpsCoordinates | null;
   onManualInput?: (coords: GpsCoordinates) => void;
+  selectedCount?: number;
+  isWriting?: boolean;
+  onWriteGps?: () => void;
 }
 
-const CoordinatePanel: React.FC<CoordinatePanelProps> = ({ coordinates, onManualInput }) => {
+const CoordinatePanel: React.FC<CoordinatePanelProps> = ({ coordinates, onManualInput, selectedCount = 0, isWriting = false, onWriteGps }) => {
   const [showManualInput, setShowManualInput] = useState(false);
   const [manualLat, setManualLat] = useState('');
   const [manualLng, setManualLng] = useState('');
@@ -63,16 +93,27 @@ const CoordinatePanel: React.FC<CoordinatePanelProps> = ({ coordinates, onManual
           </button>
         </div>
       ) : coordinates ? (
-        <div className="space-y-1 font-mono text-sm">
-          <div className="flex justify-between">
-            <span className="text-slate-500 dark:text-slate-400">緯度:</span>
-            <span className="font-semibold">{coordinates.lat.toFixed(6)}°</span>
+        <>
+          <div className="space-y-1 font-mono text-sm">
+            <div className="flex justify-between">
+              <span className="text-slate-500 dark:text-slate-400">緯度:</span>
+              <span className="font-semibold">{coordinates.lat.toFixed(6)}°</span>
+            </div>
+            <div className="flex justify-between">
+              <span className="text-slate-500 dark:text-slate-400">經度:</span>
+              <span className="font-semibold">{coordinates.lng.toFixed(6)}°</span>
+            </div>
           </div>
-          <div className="flex justify-between">
-            <span className="text-slate-500 dark:text-slate-400">經度:</span>
-            <span className="font-semibold">{coordinates.lng.toFixed(6)}°</span>
-          </div>
-        </div>
+          {/* 寫入 GPS 按鈕 */}
+          {onWriteGps && (
+            <WriteGpsButton
+              coordinates={coordinates}
+              selectedCount={selectedCount}
+              isWriting={isWriting}
+              onWriteGps={onWriteGps}
+            />
+          )}
+        </>
       ) : (
         <div className="text-sm text-slate-500 dark:text-slate-400">
           移動地圖選擇位置
