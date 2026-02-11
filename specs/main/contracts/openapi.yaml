@@ -1,0 +1,159 @@
+openapi: 3.0.3
+info:
+  title: GeoTag 批量照片 GPS 標註 API
+  version: 1.0.0
+  description: |
+    桌面應用內部 IPC/前後端溝通 API，涵蓋批量照片管理、GPS 寫入、EXIF 預覽、設定管理等。
+servers:
+  - url: local
+paths:
+  /photos/import:
+    post:
+      summary: 匯入照片
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                files:
+                  type: array
+                  items:
+                    type: string
+                  description: 照片檔案路徑陣列
+      responses:
+        '200':
+          description: 匯入成功
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  photos:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Photo'
+  /photos/set-gps:
+    post:
+      summary: 批次寫入 GPS 座標
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                photoIds:
+                  type: array
+                  items:
+                    type: string
+                lat:
+                  type: number
+                lng:
+                  type: number
+      responses:
+        '200':
+          description: 寫入結果
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  results:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        photoId:
+                          type: string
+                        status:
+                          type: string
+                          enum: [success, error]
+                        message:
+                          type: string
+  /photos/{id}/exif:
+    get:
+      summary: 取得單張照片 EXIF
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: EXIF 資訊
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ExifData'
+  /settings:
+    get:
+      summary: 取得應用程式設定
+      responses:
+        '200':
+          description: 設定內容
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AppSetting'
+    post:
+      summary: 儲存應用程式設定
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AppSetting'
+      responses:
+        '200':
+          description: 儲存成功
+components:
+  schemas:
+    Photo:
+      type: object
+      properties:
+        id:
+          type: string
+        fileName:
+          type: string
+        filePath:
+          type: string
+        selected:
+          type: boolean
+        exif:
+          $ref: '#/components/schemas/ExifData'
+        gps:
+          type: object
+          properties:
+            lat:
+              type: number
+            lng:
+              type: number
+        status:
+          type: string
+          enum: [idle, writing, success, error]
+    ExifData:
+      type: object
+      properties:
+        dateTime:
+          type: string
+        cameraModel:
+          type: string
+    AppSetting:
+      type: object
+      properties:
+        theme:
+          type: string
+          enum: [dark, light]
+        windowSize:
+          type: object
+          properties:
+            width:
+              type: number
+            height:
+              type: number
+        lastOpenedPhoto:
+          type: string
+          nullable: true

@@ -78,3 +78,62 @@ EXIF 預覽區：
 文件請用繁體中文撰寫，並確保內容清晰、具體且易於開發團隊理解與實現。
 ```
 
+
+# Plan
+
+```
+/speckit.plan /speckit.plan 使用以下技術棧和架構決策:
+
+**前端框架與工具**
+- React 18+ 搭配 TypeScript (strict mode)
+- Vite 作為建構工具和開發伺服器
+- React Router 6 處理多頁面導航
+- Zustand 用於全域狀態管理(筆記列表、當前編輯筆記)
+
+**Electron 架構**
+- Electron 30+ 作為桌面應用框架
+- 主程序(Main Process)負責檔案系統操作、系統托盤、視窗管理
+- 渲染程序(Renderer Process)負責 UI 渲染
+- 使用 contextBridge 暴露安全的 IPC API,禁用 nodeIntegration
+- electron-builder 用於打包 Windows 安裝程式
+
+**地圖**
+- 使用 Leaflet.js 與 OpenStreetMap 作為地圖解決方案
+- react-leaflet 用於在 React 中整合 Leaflet 地圖
+
+**UI 與樣式**
+- 請幫我參考 /docs/ui/batch_gps_writing_progress_view/code.html 與 /docs/ui/professional_photo_gps_tagger_dashboard/code.html 的設計,打造一個專業且現代化的使用者介面
+- Tailwind CSS 3+ 用於樣式設計
+- Radix UI 或 shadcn/ui 提供無障礙元件(對話框、下拉選單)
+- react-markdown 用於 Markdown 渲染
+- CodeMirror 6 作為編輯器,支援 Markdown 語法高亮
+
+**資料持久化**
+- 使用 Node.js fs 模組將筆記儲存為 .md 檔案在本地端
+- 儲存路徑: `%USERPROFILE%\Documents\MyNotes\`
+- 使用 SQLite (better-sqlite3) 儲存筆記元資料(標題、建立時間、修改時間)
+- 全文搜尋使用 Fuse.js 實作模糊搜尋
+
+**系統整合**
+- electron-store 管理應用程式設定(主題、視窗大小、上次開啟的筆記)
+- 系統托盤使用 Electron Tray API
+- 匯出 PDF 使用 Electron printToPDF API
+
+**開發**
+- ESLint + Prettier 用於程式碼品質
+- 不需要測試
+
+**專案結構**
+- /src/main - 主程序程式碼
+- /src/renderer - 渲染程序程式碼(React 應用)
+- /src/preload - Preload 腳本(contextBridge)
+- /src/shared - 共用型別定義和常數
+
+```
+
+- 最後產出以下文件:
+    Implementation Plan: plan.md
+    研究決策：specs/main/research.md
+    資料模型：specs/main/data-model.md
+    API 合約：specs/main/contracts/openapi.yaml
+    快速開始：specs/main/quickstart.md

@@ -1,0 +1,297 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Batch GPS Writing Progress View</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#136dec",
+                        "background-light": "#f6f7f8",
+                        "background-dark": "#101822",
+                        "surface-dark": "#1a2432",
+                        "border-dark": "#2d3a4d",
+                        "success": "#22c55e",
+                    },
+                    fontFamily: {
+                        "display": ["Inter"]
+                    },
+                    borderRadius: {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                },
+            },
+        }
+    </script>
+<style>
+        body { font-family: 'Inter', sans-serif; }
+        .custom-scrollbar::-webkit-scrollbar { width: 6px; }
+        .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background: #2d3a4d; border-radius: 10px; }
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: #3d4d63; }
+    </style>
+</head>
+<body class="bg-background-light dark:bg-background-dark text-slate-900 dark:text-slate-100 h-screen overflow-hidden font-display">
+<!-- Top Navigation Bar -->
+<header class="h-14 border-b border-slate-200 dark:border-border-dark bg-white dark:bg-surface-dark flex items-center justify-between px-4 z-50 relative">
+<div class="flex items-center gap-4">
+<div class="flex items-center gap-2">
+<span class="material-icons text-primary text-2xl">location_on</span>
+<h1 class="font-bold text-lg tracking-tight">GeoTag <span class="text-primary">Pro</span></h1>
+</div>
+<div class="h-6 w-px bg-slate-300 dark:bg-border-dark mx-2"></div>
+<div class="flex items-center gap-1 text-sm font-medium text-slate-500 dark:text-slate-400">
+<span>Project:</span>
+<span class="text-slate-900 dark:text-slate-100">Iceland_Expedition_2024</span>
+</div>
+</div>
+<div class="flex items-center gap-3">
+<button class="flex items-center gap-2 px-3 py-1.5 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors text-sm font-medium">
+<span class="material-icons text-sm">settings</span>
+                Settings
+            </button>
+<button class="flex items-center gap-2 px-4 py-1.5 rounded-lg bg-red-500/10 text-red-500 hover:bg-red-500 hover:text-white transition-all text-sm font-semibold border border-red-500/20">
+                Cancel Batch
+            </button>
+</div>
+</header>
+<main class="flex h-[calc(100vh-3.5rem)]">
+<!-- Sidebar: File Progress -->
+<aside class="w-80 flex-shrink-0 border-r border-slate-200 dark:border-border-dark bg-white dark:bg-surface-dark flex flex-col">
+<!-- Global Progress Header -->
+<div class="p-4 border-b border-slate-200 dark:border-border-dark bg-slate-50 dark:bg-background-dark/50">
+<div class="flex justify-between items-end mb-2">
+<span class="text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">Writing Progress</span>
+<span class="text-sm font-bold text-primary">64%</span>
+</div>
+<div class="w-full bg-slate-200 dark:bg-border-dark h-2 rounded-full overflow-hidden">
+<div class="bg-primary h-full w-[64%]" style="transition: width 0.5s ease-out"></div>
+</div>
+<p class="text-[11px] mt-2 text-slate-500 dark:text-slate-400">Processing: 45 of 120 files...</p>
+</div>
+<!-- Thumbnail Grid -->
+<div class="flex-1 overflow-y-auto p-3 custom-scrollbar">
+<div class="grid grid-cols-2 gap-3">
+<!-- Item: Completed -->
+<div class="relative group rounded-lg overflow-hidden border-2 border-success/50 aspect-square">
+<img class="w-full h-full object-cover" data-alt="Mountain landscape with lake and trees" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBePMkU4bsJY7noLH2L9AzJhcFaU9uOpasLMC-dr_ZFzepHg6pNGrSBndUUSNeluhcfNhSqCYK1L1SmUYbReyS4IfUvWXZHPIAiTgQzBPFalEgjEzVFFfTe5cl35-3SITj3re5bOEnOsmnO2dhZ53pVgcMrfxWJOaZopru4XVKHPKem-gMSsJUc87pjOvEGkIrUXngVwq5UOGyoHbTNg51LpnT0kxRZrJPiMqHkmUW2qbSvCuQ8ne0QsLjsj--IQaBirAy0qHT-xwI"/>
+<div class="absolute inset-0 bg-success/30 flex items-center justify-center">
+<span class="material-icons text-white text-3xl drop-shadow-md">check_circle</span>
+</div>
+<div class="absolute bottom-0 left-0 right-0 h-1 bg-success"></div>
+</div>
+<!-- Item: Completed -->
+<div class="relative group rounded-lg overflow-hidden border-2 border-success/50 aspect-square">
+<img class="w-full h-full object-cover" data-alt="Yosemite valley landscape at sunset" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBseJwTvVOjzrcb4a1uwfRHnH2231RIQSK1qzBScFUNjB5oKQXO3iUUjvbQQcd8Chpn6ODIl6PochLWjNxtXXZ9COeN4CsjJqQiA6BspQMVc9fpFD0uD6PLUrKlwIT07VPQA1m1amfPXJ3kQk2FLS0zB4WRENFZcPyDsxouyEJqwuLMdl0W_YIVeaagvXU6jKBlMDH7GG3DwwfbROX1zihaSyA52hY1GPdESmQHf5fMdkyHOsbVxMgcpT15F7hc_t_2YLlig3EGD3s"/>
+<div class="absolute inset-0 bg-success/30 flex items-center justify-center">
+<span class="material-icons text-white text-3xl drop-shadow-md">check_circle</span>
+</div>
+<div class="absolute bottom-0 left-0 right-0 h-1 bg-success"></div>
+</div>
+<!-- Item: Processing -->
+<div class="relative group rounded-lg overflow-hidden border-2 border-primary aspect-square">
+<img class="w-full h-full object-cover opacity-80" data-alt="Snowy mountain peaks under clear blue sky" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCGha9rdiB2qUxQFUnB_71vieG5ZKDl-TtmUDRUqVYcjE3wmrrFGYB5entQhFAlNdZzOR9ZzkcAnuYYQKSPlzdfEongr0KH65sbLYDv__kF5NhHdKz0AfIYECOBVpiqUjweMk4LBuxOnNBOcXduyEwI_hwZZthHQp2__nwaDyEu4rjeRZYh4ZyiMnB6uMFWgA3wBxij0mzqepWFrYQl06iq0CsMQk1Z-j3MT8CV7yXItU_2Om1H3neZkDWS-dAXLSJQoU9UnpUwb-8"/>
+<div class="absolute inset-0 bg-primary/20 flex flex-col items-center justify-center">
+<span class="material-icons text-white text-2xl animate-spin">sync</span>
+<span class="text-[10px] font-bold text-white mt-1">WRITING...</span>
+</div>
+<div class="absolute bottom-0 left-0 right-0 h-1 bg-slate-800">
+<div class="bg-primary h-full w-[45%]"></div>
+</div>
+</div>
+<!-- Item: Pending -->
+<div class="relative group rounded-lg overflow-hidden border border-slate-200 dark:border-border-dark aspect-square">
+<img class="w-full h-full object-cover opacity-60 grayscale-[0.5]" data-alt="Lush green forest with sunlight through trees" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCoWoNImwFSXvaUZ2t-pXYj03RekKZjApiktc7T_yyaORtVeiFcSCXpS2N249UIgH0t65aVg_vfS2mWE_B17cOOQnavveAZQJgk7pkQnqMkwFvncnan66-7pXbrmQZn__7G0zmjPOzLj1G35bgp5-TsqLamSkckLXKGrbGMgJWtXhayIcevmjx2Dgv9QLeuIbIBPl0tive3OhDOEuCJePHw2Fla3iqpTEdu8nv4JLNWpH0vWg023aHFbJFlLUVGrNXK5jpQfDNxq-Q"/>
+<div class="absolute inset-0 bg-black/40 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+<span class="material-icons text-white">more_horiz</span>
+</div>
+</div>
+<!-- Item: Completed -->
+<div class="relative group rounded-lg overflow-hidden border-2 border-success/50 aspect-square">
+<img class="w-full h-full object-cover" data-alt="Lake landscape with mountains in background" src="https://lh3.googleusercontent.com/aida-public/AB6AXuC224XVmiXRWIaSYYq9N-xh0Hb9LqyRLjIwVmNGccGpRR34sesCE3bzCTZX_t9TS2oVIXCkF77gw2IZoFLBoroK-FPjG1nnNLV_FpPOQ6hf9rDHd7_ym8p0QALQ6pCTdOjIffwd_CfApD1o_gn1hErC4Ox4Xf_CoaRrBAbYCaGA_OdKDhSd_O3rS_ei8_TPOBXdlQ-_PGThoB0GCG-l3eYQIth95J3YkhRi_Rc35GYNg-Asi6XyqSDMm7fmgZJXw_yRIgZWyyIefYI"/>
+<div class="absolute inset-0 bg-success/30 flex items-center justify-center">
+<span class="material-icons text-white text-3xl drop-shadow-md">check_circle</span>
+</div>
+<div class="absolute bottom-0 left-0 right-0 h-1 bg-success"></div>
+</div>
+<!-- Item: Pending -->
+<div class="relative group rounded-lg overflow-hidden border border-slate-200 dark:border-border-dark aspect-square">
+<img class="w-full h-full object-cover opacity-60 grayscale-[0.5]" data-alt="Waterfall cascading down a rocky cliff" src="https://lh3.googleusercontent.com/aida-public/AB6AXuA-fJ2lI6kioOrFWmFv9W_AYCMg31lLju2Oq9n-qNQ_5h54vEPTvZnf-rNf6f2K1ZFC9nV28ZgIv2gmzu-mr0zCb02kHrYNpFswNk8tMCjb8mIVnvn4i-f7QyxIiPS77XPw2pHnUHhw2HjC4rdvs_I85FQZeB22gjwmrWR6_-5UzmEhUXZPXeY_a_rmUpvLkOdzoS6R3ZEzqX8r2pVSv3_I8J1Vo-VZ99rf-xtJE5Ozdn1nv58FR5BX-R6-4ZZ8AmiDJJpXpnw99MQ"/>
+</div>
+<!-- More placeholder thumbnails -->
+<div class="relative group rounded-lg overflow-hidden border border-slate-200 dark:border-border-dark aspect-square">
+<img class="w-full h-full object-cover opacity-60 grayscale-[0.5]" data-alt="Misty mountains with pine trees" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBT9XaaOoSCoIj5Z4dxx5XaGw10l-tAQQOKSX57-Y033Uo2qfYY0sk5NR79VTTLPVJdsw3YQsZsw1cmNF-AyBaxfZ-p0pymeqmP7RiFJrMST4p7v2-bnvOS7FBvcVp3OGSpXgRjm-AjwRCQuy_fZ0eC3kO4QgYyzowwFxRC_O3_V01uwGjRjsspu5SxUtYcxbpNQSTa1U8Y4ymdzWFFsoiv3Pj6DJ0JgADhYr2K0P4o7G3a6i0-C8JA_2KEwWKSRbc4NTKuANODyjs"/>
+</div>
+<div class="relative group rounded-lg overflow-hidden border border-slate-200 dark:border-border-dark aspect-square">
+<img class="w-full h-full object-cover opacity-60 grayscale-[0.5]" data-alt="Rolling green hills under cloudy sky" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBR-u7la1gNfcgB-5pdgiiGl5PzM2LlWPw3RwUcUK1kFPUjy2gJ_3Ccnz8Ej374BNt9zES5hmSulmZ49JVbyTv7ayPjdVL1Y3K5fsiqwcOzOxX1QuigYJsnsx6grA8IYh5bu8g_EI3SGdJLzuwteD7uPdD--lTGfRZvPsFjA4WtDnylaWvFt5p9lzOgamp4roCqcXoxAlDebDvO5W8SwinMFXV2630LeRpqsfkCifTsOKxCDkCPZXHt8KqdiKz3WKFF7k4fDTjybOE"/>
+</div>
+</div>
+</div>
+<!-- Stats Bar -->
+<div class="p-3 bg-slate-50 dark:bg-surface-dark border-t border-slate-200 dark:border-border-dark flex justify-between items-center text-[10px] font-mono text-slate-500">
+<span>QUEUE: 120 ITEMS</span>
+<span>ELAPSED: 02:45</span>
+</div>
+</aside>
+<!-- Main Map Area -->
+<section class="flex-1 relative bg-slate-100 dark:bg-background-dark overflow-hidden">
+<!-- Map Background Mock -->
+<div class="absolute inset-0 bg-[#0b1219]" style="background-image: radial-gradient(#1e293b 1px, transparent 1px); background-size: 40px 40px;">
+<!-- Simulated Map Markers -->
+<div class="absolute top-[30%] left-[40%]">
+<div class="flex flex-col items-center">
+<div class="bg-primary text-white p-1 rounded-lg shadow-lg flex items-center gap-1 mb-1 border-2 border-white/20">
+<span class="material-icons text-sm">photo_library</span>
+<span class="text-[10px] font-bold">12</span>
+</div>
+<div class="w-3 h-3 bg-primary rounded-full border-2 border-white animate-pulse"></div>
+</div>
+</div>
+<div class="absolute top-[50%] left-[60%]">
+<div class="flex flex-col items-center">
+<div class="bg-success text-white p-1 rounded-lg shadow-lg flex items-center gap-1 mb-1 border-2 border-white/20">
+<span class="material-icons text-sm">check</span>
+<span class="text-[10px] font-bold">32</span>
+</div>
+<div class="w-3 h-3 bg-success rounded-full border-2 border-white"></div>
+</div>
+</div>
+</div>
+<!-- Map UI Overlays -->
+<div class="absolute top-6 left-1/2 -translate-x-1/2 w-[480px] z-40">
+<div class="relative">
+<!-- Search Input (Active) -->
+<div class="bg-white dark:bg-surface-dark rounded-xl shadow-2xl border-2 border-primary flex items-center px-4 h-12">
+<span class="material-icons text-primary mr-3">search</span>
+<input class="bg-transparent border-none focus:ring-0 text-slate-900 dark:text-white flex-1 text-sm font-medium" type="text" value="Reykjavík, Iceland"/>
+<button class="text-slate-400 hover:text-slate-200">
+<span class="material-icons text-lg">close</span>
+</button>
+</div>
+<!-- Search Dropdown Results -->
+<div class="absolute top-full left-0 right-0 mt-2 bg-white dark:bg-surface-dark rounded-xl shadow-2xl border border-slate-200 dark:border-border-dark overflow-hidden">
+<div class="p-2 border-b border-slate-100 dark:border-border-dark bg-slate-50 dark:bg-background-dark/30">
+<span class="text-[10px] font-bold text-slate-400 uppercase ml-2">Search Results</span>
+</div>
+<div class="max-h-60 overflow-y-auto">
+<button class="w-full flex items-center gap-3 p-3 hover:bg-primary/10 transition-colors text-left border-b border-slate-100 dark:border-border-dark">
+<span class="material-icons text-slate-400">location_on</span>
+<div>
+<p class="text-sm font-semibold">Reykjavík</p>
+<p class="text-[11px] text-slate-500">Capital Region, Iceland</p>
+</div>
+</button>
+<button class="w-full flex items-center gap-3 p-3 hover:bg-primary/10 transition-colors text-left border-b border-slate-100 dark:border-border-dark">
+<span class="material-icons text-slate-400">location_on</span>
+<div>
+<p class="text-sm font-semibold">Reykjavík International Airport</p>
+<p class="text-[11px] text-slate-500">VAT, 102 Reykjavík, Iceland</p>
+</div>
+</button>
+<button class="w-full flex items-center gap-3 p-3 hover:bg-primary/10 transition-colors text-left">
+<span class="material-icons text-slate-400">location_on</span>
+<div>
+<p class="text-sm font-semibold">Old Harbour</p>
+<p class="text-[11px] text-slate-500">Vesturbær, Reykjavík, Iceland</p>
+</div>
+</button>
+</div>
+</div>
+</div>
+</div>
+<!-- Map Zoom Controls -->
+<div class="absolute right-6 top-6 flex flex-col gap-2">
+<button class="w-10 h-10 bg-white dark:bg-surface-dark rounded-lg shadow-lg flex items-center justify-center hover:bg-slate-50 dark:hover:bg-slate-800 text-slate-600 dark:text-slate-300 border border-slate-200 dark:border-border-dark">
+<span class="material-icons">add</span>
+</button>
+<button class="w-10 h-10 bg-white dark:bg-surface-dark rounded-lg shadow-lg flex items-center justify-center hover:bg-slate-50 dark:hover:bg-slate-800 text-slate-600 dark:text-slate-300 border border-slate-200 dark:border-border-dark">
+<span class="material-icons">remove</span>
+</button>
+<div class="h-2"></div>
+<button class="w-10 h-10 bg-white dark:bg-surface-dark rounded-lg shadow-lg flex items-center justify-center hover:bg-slate-50 dark:hover:bg-slate-800 text-slate-600 dark:text-slate-300 border border-slate-200 dark:border-border-dark">
+<span class="material-icons">my_location</span>
+</button>
+</div>
+<!-- Selection Overlay (Bottom) -->
+<div class="absolute bottom-6 left-6 right-6">
+<div class="bg-white/80 dark:bg-surface-dark/90 backdrop-blur-md rounded-xl p-4 border border-white/20 dark:border-border-dark shadow-2xl flex items-center justify-between">
+<div class="flex items-center gap-4">
+<div class="flex -space-x-3 overflow-hidden">
+<img class="inline-block h-10 w-10 rounded-lg ring-2 ring-white dark:ring-surface-dark object-cover" data-alt="Thumbnail preview image 1" src="https://lh3.googleusercontent.com/aida-public/AB6AXuA8ZdOgrw03XTZP7nwNVPsavnb4oOi_zLd0vLmmIJ90IIfvPJVl64QvXIu5NjBslt1ZcHV-nllq1k8Vx7NwdwAVGlbjtsogjbGjNEO2pWnzK4OsgHidWE8Kv_MeDvaFti0k3XFTG2o-oQ5gkSg4QKVCeg9iXX6GNKRhfrdP3o9qhBiuT5iwdPFfBW0dfBBwDCp305FymMlooTgP2Dm5I1u5Vdq9z7xbiv-6QgkmEufUHkU-ZQc8LcVvRihdOZ66bqS-5t5M7-shBNg"/>
+<img class="inline-block h-10 w-10 rounded-lg ring-2 ring-white dark:ring-surface-dark object-cover" data-alt="Thumbnail preview image 2" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAmcVP95Ljy8hUeevA0JBVD9Oo82dLJyejQ7cCE7Kwh4TX36H90CvVcvsCtnqaamBGzavaJsFYdS7y3TxMJYJo7FV0KQWOD9emZk1rBoO6NIaKrLn6agxDBXLuGQj_-ISiwpCj7JethO7JU52BVQn1rcRDSnx3j5-wwT7YxoZm6Oi2MXJtG2p7Fs--HCbsZfWIn_RPggJAIK4Pc7jAKeHoyatmM9FoXcze276jl4MEzH-fyIz9DeXbMkb14_YcVO18i673Gq09KVAU"/>
+<div class="flex h-10 w-10 items-center justify-center rounded-lg bg-slate-200 dark:bg-border-dark ring-2 ring-white dark:ring-surface-dark text-[10px] font-bold">
+                                +118
+                            </div>
+</div>
+<div>
+<h3 class="text-sm font-bold">Writing GPS Metadata</h3>
+<p class="text-[11px] text-slate-500 font-mono">LAT: 64.1265° N, LON: 21.8174° W</p>
+</div>
+</div>
+<div class="flex items-center gap-3">
+<div class="hidden md:flex flex-col items-end mr-4">
+<span class="text-[10px] text-slate-500 uppercase font-bold tracking-tighter">Current Target</span>
+<span class="text-xs font-semibold text-primary">DSC_4902.JPG</span>
+</div>
+<button class="px-5 py-2 rounded-lg bg-slate-200 dark:bg-border-dark hover:bg-slate-300 dark:hover:bg-slate-700 transition-colors text-xs font-bold uppercase tracking-wide">
+                            Pause
+                        </button>
+<button class="px-5 py-2 rounded-lg bg-primary text-white hover:bg-primary/90 transition-all text-xs font-bold uppercase tracking-wide shadow-lg shadow-primary/20">
+                            Details
+                        </button>
+</div>
+</div>
+</div>
+<!-- Location Meta Float -->
+<div class="absolute left-6 top-6">
+<div class="bg-white/90 dark:bg-surface-dark/90 backdrop-blur-sm rounded-lg p-3 border border-slate-200 dark:border-border-dark shadow-lg">
+<div class="flex items-center gap-2 mb-2">
+<span class="material-icons text-primary text-base">public</span>
+<span class="text-xs font-bold">Global Context</span>
+</div>
+<div class="space-y-1">
+<div class="flex justify-between gap-8 text-[10px]">
+<span class="text-slate-500">Projection</span>
+<span class="font-mono">WGS84</span>
+</div>
+<div class="flex justify-between gap-8 text-[10px]">
+<span class="text-slate-500">Accuracy</span>
+<span class="font-mono">+/- 0.5m</span>
+</div>
+<div class="flex justify-between gap-8 text-[10px]">
+<span class="text-slate-500">Altitude</span>
+<span class="font-mono">14m ASL</span>
+</div>
+</div>
+</div>
+</div>
+</section>
+</main>
+<!-- Map Context Footer -->
+<footer class="h-10 bg-slate-50 dark:bg-background-dark border-t border-slate-200 dark:border-border-dark px-4 flex items-center justify-between text-[11px] text-slate-500 z-50 relative">
+<div class="flex items-center gap-4">
+<span class="flex items-center gap-1"><span class="w-2 h-2 rounded-full bg-success"></span> Process Healthy</span>
+<span class="flex items-center gap-1"><span class="material-icons text-[14px]">storage</span> 1.4 GB Written</span>
+</div>
+<div class="flex items-center gap-6">
+<div class="flex items-center gap-2">
+<span class="material-icons text-[14px]">mouse</span>
+<span>Click map to refine target coordinates</span>
+</div>
+<div class="font-mono text-slate-400">
+                64.1281° N, 21.8277° W
+            </div>
+</div>
+</footer>
+</body></html>
