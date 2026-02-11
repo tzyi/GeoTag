@@ -1,0 +1,358 @@
+<!DOCTYPE html>
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Photo GPS Tagger with GPX Integration</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#136dec",
+                        "background-light": "#f6f7f8",
+                        "background-dark": "#0a0f16",
+                        "panel-dark": "#161b22",
+                        "border-dark": "#30363d"
+                    },
+                    fontFamily: {
+                        "display": ["Inter"]
+                    },
+                    borderRadius: {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                },
+            },
+        }
+    </script>
+<style type="text/tailwindcss">
+        body {
+            font-family: "Inter", sans-serif;
+        }
+        .custom-scrollbar::-webkit-scrollbar {
+            width: 6px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background: #30363d;
+            border-radius: 10px;
+        }
+        .osm-2d-background {
+            background-color: #1a1a1a;
+            background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuA6cWOvpF5y_jsVmr7Doaa8o2btludPdYUiTvdWlUcblBRijpDL0-8KcpG1bl0g-SOR8s5LV9tpNig-_tXhDTxaKYiX-nwK6hvf21H4ZbpXGxqmltTFDdrFW6yR8RfBgeO_zLpdGOd7HEvxsNtxra_7AFITgUP1gx0SymknSXXqxAplXHIenyONhidvq0WRd3M4ilvS9I2PUvxl7Y0Xq0zp-sbMqEsIUpsy9lC00wU0kfzjjfRdjUPhzBsEOdjxtXZ9u50p7LEAz7A');
+            background-size: 1400px;
+            background-repeat: repeat;
+            background-position: center;
+            filter: contrast(1.1) brightness(0.6) grayscale(0.4);
+        }
+        .map-grid-overlay {
+            position: absolute;
+            inset: 0;
+            background-image: 
+                linear-gradient(90deg, rgba(255, 255, 255, 0.05) 1px, transparent 1px),
+                linear-gradient(rgba(255, 255, 255, 0.05) 1px, transparent 1px);
+            background-size: 100px 100px;
+        }
+        .road-line {
+            position: absolute;
+            background: rgba(255,255,255,0.1);
+        }
+        .gpx-path {
+            position: absolute;
+            stroke: #60a5fa;
+            fill: none;
+            stroke-width: 3;
+            stroke-linecap: round;
+            stroke-linejoin: round;
+            filter: drop-shadow(0 0 4px rgba(96, 165, 250, 0.5));
+        }
+    </style>
+</head>
+<body class="bg-background-light dark:bg-background-dark text-slate-900 dark:text-slate-100 h-screen overflow-hidden font-display">
+<div class="flex h-full w-full">
+<aside class="w-[30%] min-w-[380px] flex flex-col bg-white dark:bg-panel-dark border-r border-slate-200 dark:border-border-dark z-40">
+<div class="p-6 border-b border-slate-200 dark:border-border-dark space-y-4">
+<div class="flex items-center justify-between">
+<h1 class="text-xl font-bold tracking-tight">GeoLabel Pro</h1>
+<span class="px-2 py-1 text-xs font-semibold bg-primary/20 text-primary rounded">v2.5.0</span>
+</div>
+<div class="flex gap-2">
+<button class="flex-1 bg-primary hover:bg-primary/90 text-white text-xs font-bold py-3 px-4 rounded-lg flex items-center justify-center gap-2 transition-colors">
+<span class="material-icons text-[18px]">add_photo_alternate</span>
+                    Import Photos
+                </button>
+<button class="flex-1 bg-slate-700 hover:bg-slate-600 text-white text-xs font-bold py-3 px-4 rounded-lg flex items-center justify-center gap-2 transition-colors">
+<span class="material-icons text-[18px]">route</span>
+                    Import GPX
+                </button>
+</div>
+<div class="flex items-center justify-between text-[11px] text-slate-500 font-bold uppercase tracking-wider">
+<div class="flex items-center gap-2">
+<input checked="" class="rounded border-slate-300 dark:border-slate-700 bg-transparent text-primary focus:ring-primary" type="checkbox"/>
+<span>Select All (148)</span>
+</div>
+<span>12 selected</span>
+</div>
+</div>
+<div class="flex-1 overflow-y-auto p-4 custom-scrollbar">
+<div class="grid grid-cols-3 gap-3 mb-6">
+<div class="relative group aspect-square rounded-lg border-2 border-primary overflow-hidden bg-slate-100 dark:bg-slate-800">
+<img class="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuClXPBDhnBvK2DnWUBlfdvPTyUf9QVpuSnp0TZU5geCgXdl5sMvnFOE3mKdEWMSGJOZRqVvG1DAWLSMx-OKfML2V7T0Mjn_to85H37ZsQ5miVHjGfdY-6bzbDWrbio3Zm8GzDlj3d9MkC3I67Kas5jVFp8D7EeuR14_spQVuyS5p_4FgVfD4vAo4zVmMIlz2tdhFe_5zKXcwz79rhdLX23ox72t6zsrHVLGWEsgBL1GYQsQ33E5Gbv1D9OxYf2rSmDLJPtzP9VLh4o"/>
+<div class="absolute inset-0 bg-primary/10"></div>
+<div class="absolute top-1 right-1">
+<div class="w-5 h-5 rounded-full bg-emerald-500 flex items-center justify-center shadow-lg">
+<span class="material-icons text-white text-[14px]">done_all</span>
+</div>
+</div>
+<div class="absolute bottom-0 inset-x-0 p-1.5 bg-black/60">
+<p class="text-[9px] text-white truncate font-medium">DSC_0492.JPG</p>
+</div>
+</div>
+<div class="relative group aspect-square rounded-lg border-2 border-transparent hover:border-slate-400 dark:hover:border-slate-600 overflow-hidden bg-slate-100 dark:bg-slate-800 transition-all">
+<img class="w-full h-full object-cover opacity-80" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDQNn8DGvIa7pkMaTLLC7Yhi5IKdsthMxb_FD1r_vJ-Luln3uDEw0ZGd3ij5ANbuyuue7_phu0i7hQKNUIlnEKdCWyno-vWcWx68HxPAgeHolXgUcP9bixzxAdy5HCgb6-7D1eFiKfqymiF6k8ILBumOct6UsY3d2t0m7OV0cS74MxBt22a_d0xTBl-c9Q6a3i-adEs1AiITHPyoQIVgogvqGxKMpFGzqpmlx4YB7AN4nwYJ1yiBbLJPUbNcSS-crd-asPd5qdyGNc"/>
+<div class="absolute top-1 right-1">
+<div class="w-5 h-5 rounded-full bg-emerald-500 flex items-center justify-center shadow-lg">
+<span class="material-icons text-white text-[14px]">done_all</span>
+</div>
+</div>
+<div class="absolute bottom-0 inset-x-0 p-1.5 bg-black/60">
+<p class="text-[9px] text-white truncate font-medium">DSC_0493.JPG</p>
+</div>
+</div>
+<div class="relative group aspect-square rounded-lg border-2 border-primary overflow-hidden bg-slate-100 dark:bg-slate-800">
+<img class="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuB3E0xu8yUcSdPhEaXLOdueuKSfc0MNGnxDjgeSPwN76AqRsTGpAgmHe1iknsACeaNdLLJNE6SVDAqv06Aa4N8-u6zXjBtknZFSJlTx-1qzmOdZHtWxWI1Ib2MDTlx0gtr_mGf7TyFhxbxtzDMw8P1uZc-z4Rch-g4prTPz5WXwpe9eGJtlPnfPRUeewLf9KT9QreLxVQy-71CRN8-_qxQBIdM-3rrjrOuzBI24HEsKfNIU9DCUGd6Zj_7s7XDbpGqtZbeBP5bQaXo"/>
+<div class="absolute top-1 right-1">
+<div class="w-5 h-5 rounded-full bg-emerald-500 flex items-center justify-center shadow-lg">
+<span class="material-icons text-white text-[14px]">done_all</span>
+</div>
+</div>
+<div class="absolute bottom-0 inset-x-0 p-1.5 bg-black/60">
+<p class="text-[9px] text-white truncate font-medium">DSC_0494.JPG</p>
+</div>
+</div>
+<div class="relative group aspect-square rounded-lg border-2 border-transparent bg-slate-100 dark:bg-slate-800">
+<img class="w-full h-full object-cover opacity-50" src="https://lh3.googleusercontent.com/aida-public/AB6AXuD48dKwvEpsZouqMExgdhECK_f1eeT8GD9kQBERGN3kpdqni74DURwgWrc0CNX-XKOYaUbCLtVHMaudaNr8BiSN0pX8hhaQJ1C-z2yOgMkh3JoCxWxW_jkK2Jh_yccfFXe3qqp0h8Y7X7J2gxOT5MuZx2dZtvMTEKMfnD-E3Og-wDhpRvem0HOTyUXCha5qX1kXDlfnRo30F6pwlTq-RtOSbholiytw5M3KFexnbNNYZJqZNNV_T66Lg-duUFlHB9FTQfJsibUxYRs"/>
+<div class="absolute bottom-0 inset-x-0 p-1.5 bg-black/60">
+<p class="text-[9px] text-white truncate font-medium">DSC_0495.JPG</p>
+</div>
+</div>
+<div class="relative group aspect-square rounded-lg border-2 border-transparent bg-slate-100 dark:bg-slate-800">
+<img class="w-full h-full object-cover opacity-50" src="https://lh3.googleusercontent.com/aida-public/AB6AXuA9zCMWKXei8MPsVhJeh6SH4w2XjlIACJ7jXhYGW4xon4MkgfXjr0zWFrQ1IF2-Ca4AL9aeAjFn-FmW9bwChyPXWa18U4gMb4oww1rFxZ1ikw4IbUIewlGIAd4EqxCAgCvhAbZMwNEdiAjPXU5-iATZXAXs_ciFa3Dexks3NExWrN9oXwW9iQ14sjPj6VR8_NrAK75pF3oebzC3XYNOKJuPgE7Js-Xp94QBIJ-D9Cp_dmBRD8TKHnzSHWilNTGQCB8z2dvn3EOtkrY"/>
+<div class="absolute bottom-0 inset-x-0 p-1.5 bg-black/60">
+<p class="text-[9px] text-white truncate font-medium">DSC_0496.JPG</p>
+</div>
+</div>
+<div class="relative group aspect-square rounded-lg border-2 border-transparent bg-slate-100 dark:bg-slate-800">
+<img class="w-full h-full object-cover opacity-50" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCLAr2zRMt94oi0ioQEg8pYMsDg2A7i_K0Pe0o25U8nXj4ahxxMpfDXvKSyvcBR4OCch8pboEr4vLu9QdTXKyc0M5HY546D537dU2_P53K8fpDNRkLMTqMjQSr_XlNZ0kPzW3R5orhGDmY-ykcu0SVRoBA84K2CxRvCNlGBdvy2SnaSEY01FHfdlQoVOAcfE83UIi5fYGvvtrBJhMl3CwGTjVvTuWpRIj4oTHngk8WWEOzDWp5MqpxwCUcFPdfAKPdS7JdVkrxb0Bo"/>
+<div class="absolute bottom-0 inset-x-0 p-1.5 bg-black/60">
+<p class="text-[9px] text-white truncate font-medium">DSC_0497.JPG</p>
+</div>
+</div>
+</div>
+<div class="mt-8">
+<div class="flex items-center justify-between mb-4">
+<h3 class="text-[11px] font-bold text-slate-500 uppercase tracking-[0.15em]">GPX Tracks</h3>
+<span class="text-[10px] bg-slate-800 px-2 py-0.5 rounded text-slate-400">2 Active</span>
+</div>
+<div class="space-y-2">
+<div class="p-3 bg-slate-800/40 border border-border-dark rounded-lg flex items-center gap-3">
+<span class="material-icons text-primary text-[18px]">polyline</span>
+<div class="flex-1 min-w-0">
+<p class="text-xs font-medium truncate">Morning_Trek_Bologna.gpx</p>
+<p class="text-[10px] text-slate-500">14.2 km • 1,420 points</p>
+</div>
+<input checked="" class="rounded border-slate-700 bg-transparent text-primary" type="checkbox"/>
+</div>
+<div class="p-3 bg-slate-800/40 border border-border-dark rounded-lg flex items-center gap-3">
+<span class="material-icons text-primary text-[18px]">polyline</span>
+<div class="flex-1 min-w-0">
+<p class="text-xs font-medium truncate">City_Center_Loop.gpx</p>
+<p class="text-[10px] text-slate-500">5.8 km • 680 points</p>
+</div>
+<input checked="" class="rounded border-slate-700 bg-transparent text-primary" type="checkbox"/>
+</div>
+</div>
+</div>
+</div>
+</aside>
+<main class="relative flex-1 bg-[#101822] overflow-hidden">
+<div class="absolute inset-0 z-0 osm-2d-background overflow-hidden">
+<div class="map-grid-overlay"></div>
+<svg class="absolute inset-0 w-full h-full pointer-events-none opacity-60" preserveAspectRatio="none">
+<path class="gpx-path" d="M100,200 L250,320 L400,310 L550,450 L700,430 L850,580 L1100,550" fill="none"></path>
+</svg>
+<div class="absolute inset-0 opacity-20 pointer-events-none">
+<div class="road-line w-4 h-full left-[20%]"></div>
+<div class="road-line w-3 h-full left-[45%]"></div>
+<div class="road-line w-6 h-full left-[85%]"></div>
+<div class="road-line h-4 w-full top-[30%]"></div>
+<div class="road-line h-3 w-full top-[65%]"></div>
+</div>
+<div class="absolute top-[28%] left-[22%] pointer-events-none">
+<span class="text-[10px] font-bold text-slate-300/60 tracking-widest uppercase bg-black/20 px-1">Via dell'Indipendenza</span>
+</div>
+<div class="absolute bottom-[32%] right-[28%] pointer-events-none">
+<span class="text-[10px] font-bold text-emerald-300/40 tracking-widest uppercase">Parco dei Cedri</span>
+</div>
+<div class="absolute top-[60%] right-[40%] pointer-events-none">
+<span class="text-[10px] font-bold text-blue-300/40 tracking-widest uppercase">Bacino del Reno</span>
+</div>
+</div>
+<div class="absolute inset-0 pointer-events-none flex items-center justify-center z-20">
+<div class="relative flex items-center justify-center">
+<div class="w-16 h-16 border border-primary/40 rounded-full flex items-center justify-center backdrop-blur-[1px]">
+<div class="w-1.5 h-1.5 bg-primary rounded-full shadow-[0_0_15px_6px_rgba(19,109,236,0.7)]"></div>
+</div>
+<div class="absolute w-[1px] h-40 bg-gradient-to-b from-transparent via-primary/50 to-transparent"></div>
+<div class="absolute h-[1px] w-40 bg-gradient-to-r from-transparent via-primary/50 to-transparent"></div>
+</div>
+</div>
+<div class="absolute top-6 left-6 z-30 w-80">
+<div class="relative group">
+<span class="material-icons absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-primary transition-colors">search</span>
+<input class="w-full bg-[#1E1E1E]/95 backdrop-blur-xl border border-border-dark rounded-xl py-3.5 pl-12 pr-4 text-sm focus:outline-none focus:ring-2 focus:ring-primary/40 text-slate-200 shadow-2xl transition-all" placeholder="Search location or coordinates..." type="text"/>
+</div>
+</div>
+<div class="absolute top-6 right-6 flex flex-col gap-3 z-30">
+<div class="flex flex-col bg-[#1E1E1E]/95 backdrop-blur-md border border-border-dark rounded-xl overflow-hidden shadow-2xl">
+<button class="p-3.5 hover:bg-slate-800 border-b border-border-dark text-slate-300 transition-colors">
+<span class="material-symbols-outlined text-[20px]">add</span>
+</button>
+<button class="p-3.5 hover:bg-slate-800 text-slate-300 transition-colors">
+<span class="material-symbols-outlined text-[20px]">remove</span>
+</button>
+</div>
+<button class="p-3.5 bg-[#1E1E1E]/95 backdrop-blur-md border border-border-dark rounded-xl text-slate-300 hover:bg-slate-800 shadow-2xl transition-colors">
+<span class="material-symbols-outlined text-[20px]">my_location</span>
+</button>
+<button class="p-3.5 bg-[#1E1E1E]/95 backdrop-blur-md border border-border-dark rounded-xl text-primary hover:bg-slate-800 shadow-2xl transition-colors">
+<span class="material-symbols-outlined text-[20px]">map</span>
+</button>
+</div>
+<div class="absolute bottom-6 right-6 z-30 flex items-end gap-4">
+<div class="bg-[#1E1E1E]/95 backdrop-blur-xl border border-border-dark p-6 rounded-2xl shadow-2xl min-w-[340px]">
+<div class="flex flex-col gap-5">
+<div class="space-y-3">
+<div class="flex justify-between items-end border-b border-border-dark/50 pb-2">
+<span class="text-[9px] uppercase font-bold text-slate-500 tracking-[0.2em]">Latitude</span>
+<span class="text-xl font-mono text-slate-100 font-medium tabular-nums">46.519722° N</span>
+</div>
+<div class="flex justify-between items-end border-b border-border-dark/50 pb-2">
+<span class="text-[9px] uppercase font-bold text-slate-500 tracking-[0.2em]">Longitude</span>
+<span class="text-xl font-mono text-slate-100 font-medium tabular-nums">6.632273° E</span>
+</div>
+<div class="flex justify-between items-center text-xs">
+<div class="flex items-center gap-1.5 text-slate-400">
+<span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+                                Precision: ±1.2m
+                            </div>
+<span class="text-primary font-semibold tracking-tight uppercase text-[10px]">Active Track Sync</span>
+</div>
+</div>
+<div class="grid grid-cols-1 gap-2">
+<button class="w-full bg-slate-700 hover:bg-slate-600 text-white font-bold py-3 px-4 rounded-xl flex items-center justify-center gap-2 transition-all text-xs border border-white/5">
+<span class="material-symbols-outlined text-[18px]">sync_alt</span>
+                            Auto-match by GPX
+                        </button>
+<button class="w-full bg-primary hover:bg-primary/90 text-white font-bold py-4 px-6 rounded-xl flex items-center justify-center gap-3 shadow-lg shadow-primary/20 transition-all active:scale-[0.97]">
+<span class="material-symbols-outlined">edit_location_alt</span>
+                            Write GPS to Selected (12)
+                        </button>
+</div>
+</div>
+</div>
+</div>
+<div class="absolute bottom-6 left-6 z-30">
+<div class="bg-[#1E1E1E]/90 backdrop-blur-md border border-border-dark px-3 py-1.5 rounded-full text-[10px] text-slate-400 flex items-center gap-2">
+<span class="w-2 h-2 rounded-full bg-emerald-500"></span>
+                2D OSM VIEWPORT • ACTIVE GPX OVERLAY
+            </div>
+</div>
+</main>
+<aside class="w-72 bg-white dark:bg-panel-dark border-l border-slate-200 dark:border-border-dark flex flex-col z-40">
+<div class="p-6 border-b border-slate-200 dark:border-border-dark">
+<h2 class="text-sm font-bold flex items-center gap-2">
+<span class="material-symbols-outlined text-primary text-[20px]">settings_suggest</span>
+                GPX Auto-Match
+            </h2>
+</div>
+<div class="p-6 space-y-8 custom-scrollbar overflow-y-auto">
+<div class="space-y-4">
+<label class="block">
+<span class="text-[10px] font-bold text-slate-500 uppercase tracking-wider block mb-2">Timezone Offset</span>
+<select class="w-full bg-slate-800/50 border-border-dark rounded-lg text-sm text-slate-200 focus:ring-primary focus:border-primary">
+<option>UTC +01:00 (CET)</option>
+<option>UTC +00:00 (GMT)</option>
+<option>UTC -05:00 (EST)</option>
+</select>
+</label>
+<label class="block">
+<div class="flex justify-between items-center mb-2">
+<span class="text-[10px] font-bold text-slate-500 uppercase tracking-wider">Max Time Diff</span>
+<span class="text-xs text-primary font-mono">15s</span>
+</div>
+<input class="w-full accent-primary bg-slate-800 rounded-lg h-1.5 appearance-none cursor-pointer" max="60" min="1" type="range" value="15"/>
+<div class="flex justify-between text-[9px] text-slate-500 mt-1 font-mono">
+<span>1s</span>
+<span>60s</span>
+</div>
+</label>
+<div class="pt-4 border-t border-border-dark space-y-4">
+<label class="flex items-center justify-between cursor-pointer">
+<span class="text-xs text-slate-300">Interpolate positions</span>
+<div class="relative inline-flex items-center cursor-pointer">
+<input checked="" class="sr-only peer" type="checkbox"/>
+<div class="w-8 h-4 bg-slate-700 rounded-full peer peer-checked:bg-primary after:content-[''] after:absolute after:top-0.5 after:left-[2px] after:bg-white after:rounded-full after:h-3 after:w-3 after:transition-all peer-checked:after:translate-x-4"></div>
+</div>
+</label>
+<label class="flex items-center justify-between cursor-pointer">
+<span class="text-xs text-slate-300">Prefer precise matches</span>
+<div class="relative inline-flex items-center cursor-pointer">
+<input class="sr-only peer" type="checkbox"/>
+<div class="w-8 h-4 bg-slate-700 rounded-full peer peer-checked:bg-primary after:content-[''] after:absolute after:top-0.5 after:left-[2px] after:bg-white after:rounded-full after:h-3 after:w-3 after:transition-all peer-checked:after:translate-x-4"></div>
+</div>
+</label>
+</div>
+</div>
+<div class="p-4 bg-slate-800/30 rounded-xl border border-border-dark space-y-3">
+<p class="text-[10px] font-bold text-slate-500 uppercase">Match Status</p>
+<div class="flex justify-between items-center">
+<span class="text-xs text-slate-400">Total photos</span>
+<span class="text-xs font-mono font-bold">148</span>
+</div>
+<div class="flex justify-between items-center">
+<span class="text-xs text-slate-400">Matched</span>
+<span class="text-xs font-mono font-bold text-emerald-500">112</span>
+</div>
+<div class="flex justify-between items-center">
+<span class="text-xs text-slate-400">Unmatched</span>
+<span class="text-xs font-mono font-bold text-amber-500">36</span>
+</div>
+<div class="w-full bg-slate-700 h-1.5 rounded-full overflow-hidden mt-2">
+<div class="bg-emerald-500 h-full" style="width: 75%"></div>
+</div>
+</div>
+</div>
+<div class="mt-auto p-4 border-t border-border-dark">
+<div class="flex items-center gap-3 text-slate-500 text-[11px] mb-4">
+<span class="material-icons text-sm">schedule</span>
+                Camera Clock: 14:23:01 (Z9)
+            </div>
+<button class="w-full p-2 rounded-lg hover:bg-slate-800 text-slate-400 flex items-center justify-center gap-2 text-xs">
+<span class="material-icons text-sm">settings</span>
+                System Settings
+            </button>
+</div>
+</aside>
+</div>
+
+</body></html>

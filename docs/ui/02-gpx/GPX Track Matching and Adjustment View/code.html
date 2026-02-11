@@ -1,0 +1,328 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>GPX Track Matching &amp; Adjustment | GeoTag Pro</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#136dec",
+                        "background-light": "#f6f7f8",
+                        "background-dark": "#101822",
+                        "success": "#10b981",
+                        "surface": "#1e293b",
+                    },
+                    fontFamily: {
+                        "display": ["Inter"]
+                    },
+                    borderRadius: {"DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px"},
+                },
+            },
+        }
+    </script>
+<style>
+        body { font-family: 'Inter', sans-serif; }
+        .map-container { background-image: radial-gradient(circle at 2px 2px, #1e293b 1px, transparent 0); background-size: 24px 24px; }
+        .gpx-path { stroke-dasharray: 4; }
+    </style>
+</head>
+<body class="bg-background-light dark:bg-background-dark text-slate-900 dark:text-slate-100 h-screen flex flex-col overflow-hidden font-display">
+<!-- Header Navigation -->
+<header class="h-16 border-b border-slate-200 dark:border-slate-800 flex items-center justify-between px-6 bg-white dark:bg-background-dark/50 backdrop-blur-md z-30">
+<div class="flex items-center gap-4">
+<div class="w-8 h-8 bg-primary rounded flex items-center justify-center">
+<span class="material-icons text-white text-sm">satellite_alt</span>
+</div>
+<h1 class="font-bold text-lg tracking-tight">GeoTag <span class="text-primary">Pro</span></h1>
+<div class="h-4 w-px bg-slate-700 mx-2"></div>
+<nav class="flex items-center gap-1 text-sm text-slate-500 font-medium">
+<span>Projects</span>
+<span class="material-icons text-xs">chevron_right</span>
+<span class="text-slate-200">Iceland Expedition 2024</span>
+</nav>
+</div>
+<div class="flex items-center gap-6">
+<div class="flex flex-col items-end">
+<span class="text-[10px] uppercase tracking-widest text-slate-500 font-bold">Track Status</span>
+<span class="text-xs font-mono text-success flex items-center gap-1">
+<span class="w-2 h-2 rounded-full bg-success"></span> 1,242 Matches Found
+                </span>
+</div>
+<button class="bg-primary hover:bg-primary/90 text-white px-4 py-2 rounded-lg text-sm font-semibold transition-all flex items-center gap-2">
+<span class="material-icons text-sm">check_circle</span>
+                Apply GPX Coordinates
+            </button>
+</div>
+</header>
+<main class="flex-1 flex overflow-hidden relative">
+<!-- Left Sidebar: Tools & Metadata -->
+<aside class="w-72 border-r border-slate-200 dark:border-slate-800 flex flex-col bg-white dark:bg-background-dark/30">
+<div class="p-4 border-b border-slate-200 dark:border-slate-800">
+<h3 class="text-xs font-bold text-slate-500 uppercase tracking-widest mb-4">Active GPX Track</h3>
+<div class="bg-primary/10 border border-primary/30 p-3 rounded-xl">
+<div class="flex items-center gap-3 mb-2">
+<span class="material-icons text-primary text-xl">route</span>
+<div>
+<p class="text-sm font-semibold leading-none">Day_04_Highlands.gpx</p>
+<p class="text-[10px] text-slate-500 mt-1">Uploaded 12 mins ago</p>
+</div>
+</div>
+<div class="grid grid-cols-2 gap-2 text-[10px] font-mono mt-3 text-slate-400">
+<div>Dist: 42.4 km</div>
+<div>Duration: 6h 12m</div>
+<div>Pts: 14,290</div>
+<div>Elev: +1,200m</div>
+</div>
+</div>
+</div>
+<div class="flex-1 overflow-y-auto p-4">
+<h3 class="text-xs font-bold text-slate-500 uppercase tracking-widest mb-4">Correlation Rules</h3>
+<div class="space-y-4">
+<div>
+<label class="text-xs text-slate-400 block mb-2">Distance Sensitivity (m)</label>
+<input class="w-full accent-primary bg-slate-800 rounded-lg h-1" type="range" value="50"/>
+<div class="flex justify-between text-[10px] text-slate-500 mt-1">
+<span>1m</span><span>25m</span><span>50m</span>
+</div>
+</div>
+<div class="flex items-center justify-between p-3 bg-slate-800/50 rounded-lg border border-slate-700/50">
+<span class="text-xs">Interpolate Path</span>
+<div class="w-8 h-4 bg-primary rounded-full relative">
+<div class="absolute right-0.5 top-0.5 w-3 h-3 bg-white rounded-full"></div>
+</div>
+</div>
+</div>
+</div>
+</aside>
+<!-- Main Content Area -->
+<div class="flex-1 flex flex-col">
+<!-- Map Pane -->
+<div class="flex-1 relative bg-slate-900 overflow-hidden map-container">
+<!-- Mock Map UI -->
+<div class="absolute inset-0 opacity-40">
+<img class="w-full h-full object-cover grayscale invert" data-alt="Satellite map view of mountain terrain" data-location="Iceland" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCRkV71CDbIi4yJ4T3BapJPe5MGTcxkciDd8S8FnOFD4Uta_FQRv9IUfW1cQEh4kLrJhIvtmNR4mOLsF_LGbk1Cu3rk19Sd1p2qoWZ2_SkBwPq7cMWkmRWq3YbChKma8krZAtUXOnf_F2yVMKCpItv3O9lt5uOK56UXF4N1p667aYHLaNs393VEn9FkjSTlR4SvTfmmxpgFOl5rHMBxw00WiMoqA7moaBwyIsMxaGT8b4ybrf8u9ob4nufHP6kb3TORjtn98fqGgIg"/>
+</div>
+<!-- SVG Path Over Map -->
+<svg class="absolute inset-0 w-full h-full pointer-events-none" viewbox="0 0 1000 600">
+<path class="gpx-path" d="M100,500 Q250,450 300,300 T500,200 T700,400 T900,100" fill="none" stroke="#136dec" stroke-linecap="round" stroke-width="4"></path>
+<!-- Photo Points on Path -->
+<circle cx="210" cy="460" fill="#10b981" r="4"></circle>
+<circle cx="280" cy="380" fill="#10b981" r="4"></circle>
+<circle cx="340" cy="280" fill="#10b981" r="4"></circle>
+<circle cx="480" cy="210" fill="#10b981" r="4"></circle>
+<circle cx="650" cy="350" fill="#10b981" r="4"></circle>
+<circle cx="820" cy="210" fill="#10b981" r="4"></circle>
+</svg>
+<!-- Floating Map Controls -->
+<div class="absolute top-4 right-4 flex flex-col gap-2">
+<button class="w-10 h-10 bg-surface border border-slate-700 rounded-lg flex items-center justify-center text-slate-300 hover:text-white"><span class="material-icons">add</span></button>
+<button class="w-10 h-10 bg-surface border border-slate-700 rounded-lg flex items-center justify-center text-slate-300 hover:text-white"><span class="material-icons">remove</span></button>
+<div class="h-4"></div>
+<button class="w-10 h-10 bg-surface border border-slate-700 rounded-lg flex items-center justify-center text-slate-300 hover:text-white"><span class="material-icons">layers</span></button>
+</div>
+<!-- Live Track Marker -->
+<div class="absolute left-[340px] top-[280px] -translate-x-1/2 -translate-y-1/2 flex flex-col items-center">
+<div class="bg-white dark:bg-background-dark p-1 rounded-lg border-2 border-primary shadow-xl mb-1">
+<img class="w-12 h-12 rounded object-cover" data-alt="Thumbnail of Icelandic waterfall photography" src="https://lh3.googleusercontent.com/aida-public/AB6AXuALuKWUSTo596MgQb3sYSmM1Co5XSN9w6M1Jr_DxDIhmPx_KtNY6IiVGwIHTi8mnbVyitwYkZjqCnjVm75zvY3wxWsouOp9jyzU8bkz-cyJoTJ4S0fgGL7k6cLFYh1vw9X6bXww5y7stypCzNReeSzYiJuLLcp8mle1kSFlnG40TOdBGIXcJkzKwPDlMjaWHOYAtcXH697LiQGUQ-_p2HQyfoX7FMoVvjGG6cxHZAsp__Z4RFXVOZdDLHMfEaMDblBy2RPgQ-P65dE"/>
+</div>
+<div class="w-3 h-3 bg-primary rounded-full border-2 border-white"></div>
+</div>
+<!-- Timezone Offset Modal Overlay -->
+<div class="absolute inset-0 bg-slate-900/40 backdrop-blur-sm flex items-center justify-center z-40">
+<div class="w-full max-w-md bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl shadow-2xl overflow-hidden">
+<div class="p-6 border-b border-slate-200 dark:border-slate-800">
+<h2 class="text-xl font-bold flex items-center gap-2">
+<span class="material-icons text-primary">schedule</span>
+                                Timezone Offset Adjustment
+                            </h2>
+<p class="text-sm text-slate-500 mt-1">Align photo capture times with GPX log UTC timestamps.</p>
+</div>
+<div class="p-6 space-y-6">
+<div class="flex items-center justify-between gap-4">
+<div class="flex-1 p-3 bg-slate-800/50 rounded-lg border border-slate-700">
+<span class="text-[10px] uppercase font-bold text-slate-500 block mb-1">Photo Time (Local)</span>
+<span class="text-sm font-mono">2024-08-14 14:22:10</span>
+</div>
+<span class="material-icons text-slate-600">arrow_forward</span>
+<div class="flex-1 p-3 bg-primary/10 rounded-lg border border-primary/30">
+<span class="text-[10px] uppercase font-bold text-primary block mb-1">Match Time (UTC)</span>
+<span class="text-sm font-mono font-bold">2024-08-14 12:22:10</span>
+</div>
+</div>
+<div>
+<div class="flex justify-between items-end mb-4">
+<label class="text-sm font-medium">Offset Duration</label>
+<span class="text-2xl font-mono text-primary font-bold">-02:00:00</span>
+</div>
+<input class="w-full accent-primary h-2 bg-slate-800 rounded-full appearance-none" max="12" min="-12" step="0.5" type="range" value="-2"/>
+<div class="flex justify-between text-[10px] text-slate-500 font-mono mt-2">
+<span>-12:00</span>
+<span>0:00 (UTC)</span>
+<span>+12:00</span>
+</div>
+</div>
+<div class="bg-success/5 border border-success/20 p-3 rounded-lg flex items-start gap-3">
+<span class="material-icons text-success text-sm mt-0.5">info</span>
+<p class="text-[11px] text-success/80">Adjusting by -2 hours will result in 1,242 potential matches across the current track.</p>
+</div>
+</div>
+<div class="p-4 bg-slate-50 dark:bg-slate-800/50 flex justify-end gap-3">
+<button class="px-4 py-2 text-sm font-medium text-slate-400 hover:text-white transition-colors">Cancel</button>
+<button class="bg-primary text-white px-6 py-2 rounded-lg text-sm font-bold shadow-lg shadow-primary/20">Preview Alignment</button>
+</div>
+</div>
+</div>
+</div>
+<!-- Bottom Photo Grid -->
+<div class="h-64 border-t border-slate-200 dark:border-slate-800 bg-white dark:bg-background-dark/80 p-4">
+<div class="flex items-center justify-between mb-4">
+<h3 class="text-xs font-bold text-slate-500 uppercase tracking-widest">Matched Imagery Grid</h3>
+<div class="flex items-center gap-4">
+<div class="flex items-center gap-2 text-xs">
+<span class="w-2 h-2 rounded-full bg-success"></span>
+<span class="text-slate-400">Matched</span>
+</div>
+<div class="flex items-center gap-2 text-xs">
+<span class="w-2 h-2 rounded-full bg-slate-700"></span>
+<span class="text-slate-400">Unmatched</span>
+</div>
+</div>
+</div>
+<div class="flex gap-4 overflow-x-auto pb-2 scrollbar-thin scrollbar-thumb-slate-700">
+<!-- Photo Card: Matched -->
+<div class="flex-shrink-0 w-40 group cursor-pointer">
+<div class="relative rounded-lg border-2 border-success overflow-hidden shadow-lg shadow-success/10">
+<img class="w-full h-32 object-cover" data-alt="Landscape photo of volcanic plains" src="https://lh3.googleusercontent.com/aida-public/AB6AXuB1kkU-WnBYQHnL3C_EefTHuUM8XSERNJm3jKiCZslu9f4AP6tSDJ5Wn11kWQUQX9wF15P7l8zV-DeYYPCIZM2H4_FL-TcO-h2qmDoBzZaxNrwPoFrAXL_OnyCGirpCSffcKG6p7Uh9K02jYXli8iPxkVvy7xOxJVjU7H32Ke3BUKu7T8tEjcnOi4AmEOPfnf0aKp0pexVo0LqoGby4aOi2LXQSzx-1vwz2lIc0Fn25oYP11hOdCPMJ1sgmyUUYAyu79yFE6LEEanE"/>
+<div class="absolute top-1 right-1 bg-primary text-[9px] font-bold px-1.5 py-0.5 rounded text-white shadow-md">GPX</div>
+<div class="absolute bottom-0 inset-x-0 bg-black/60 backdrop-blur-sm p-1.5 flex justify-between items-center">
+<span class="text-[9px] font-mono text-white truncate">IMG_8421.RAW</span>
+<span class="material-icons text-success text-[14px]">location_on</span>
+</div>
+</div>
+</div>
+<!-- Photo Card: Matched -->
+<div class="flex-shrink-0 w-40 group cursor-pointer">
+<div class="relative rounded-lg border-2 border-success overflow-hidden shadow-lg shadow-success/10">
+<img class="w-full h-32 object-cover" data-alt="Glacier photo with blue ice" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBYgVcDBulgRepUq36wot8qJkPHM06VdUw7lOM5hC2kkW8fj84N1DQo0LMuZc34j5R7RjW7Cugq4Zdz-9OJmhq6yRuJC-t_GykbKJmsR4WAaweUaaxMFhI8NemwQuTKmBXZQUVF5lyyq56O-DASEapMCQmw-kpWJ7pcK44xnGiPu18Twcl_OAFrJt9U-gpN9-C4m9G9k2NWbbc6A96FmR8mvqZx98RdXuyg7eG_xZyYIjwfWVknhbta05lTV7XEdAnjOiEIR3QJfVI"/>
+<div class="absolute top-1 right-1 bg-primary text-[9px] font-bold px-1.5 py-0.5 rounded text-white shadow-md">GPX</div>
+<div class="absolute bottom-0 inset-x-0 bg-black/60 backdrop-blur-sm p-1.5 flex justify-between items-center">
+<span class="text-[9px] font-mono text-white truncate">IMG_8422.RAW</span>
+<span class="material-icons text-success text-[14px]">location_on</span>
+</div>
+</div>
+</div>
+<!-- Photo Card: Matched (Current) -->
+<div class="flex-shrink-0 w-40 group cursor-pointer scale-105 z-10">
+<div class="relative rounded-lg border-[3px] border-primary overflow-hidden shadow-2xl shadow-primary/20">
+<img class="w-full h-32 object-cover" data-alt="Waterfall photo matching map location" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDN3U39ZmII_Nwy3czVyKvvAX-xjwEVlMINVdixpyQ4a84azvSvZNIvRvzLPp22O63vZlNM9mGzpTOs2vJmB9GgSaMvW3kBIfvZW60EmmcnL5Z_New3mkMGFOCgmKiEGyS20XsWzrUhmt0EpmmKd1TE-oERtHjxAyTVCedurvI1V4-pNOBV9yXpWX-H9snTSWTsTcpNwk7iwHttPTt0pYY4D_vUTYTOb8Z5iBWDrYfBAELq0Ty5jeWVR8BtnEzgenJMBdnsxJA2m_o"/>
+<div class="absolute top-1 right-1 bg-primary text-[9px] font-bold px-1.5 py-0.5 rounded text-white shadow-md">GPX</div>
+<div class="absolute bottom-0 inset-x-0 bg-primary/90 p-1.5 flex justify-between items-center">
+<span class="text-[9px] font-mono text-white truncate">IMG_8423.RAW</span>
+<span class="material-icons text-white text-[14px]">my_location</span>
+</div>
+</div>
+</div>
+<!-- Photo Card: Unmatched -->
+<div class="flex-shrink-0 w-40 group cursor-pointer opacity-50 grayscale hover:grayscale-0 hover:opacity-100 transition-all">
+<div class="relative rounded-lg border-2 border-slate-700 overflow-hidden">
+<img class="w-full h-32 object-cover" data-alt="Misty mountain landscape photo" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCnN5YMEY1SSaIYw7LWjUQUO4iKBbGIOoWCjea8OB6aNju8oTHpCDRYdzcHbvufNrwBzZtr6zAJHUwNAmMEnXdmavA489Hn-42teTM8e2k4woORRiUlitd8QnIvWY9gkNCiipnm1NfQK0cMORRARGZ40E2Fn0Szfv02UzLufIuwZ6esI2TSao-ozIuliyiikra12SZZ5oefcv6IgcRYBurB4cx0PP9RmhB3fQmokVaDYzzeVAaWXQuMSNT_UclmHmvtQ5uwW5QAGLo"/>
+<div class="absolute bottom-0 inset-x-0 bg-black/60 backdrop-blur-sm p-1.5 flex justify-between items-center">
+<span class="text-[9px] font-mono text-white truncate">IMG_8424.RAW</span>
+<span class="material-icons text-slate-500 text-[14px]">location_off</span>
+</div>
+</div>
+</div>
+<!-- More placeholders -->
+<div class="flex-shrink-0 w-40 group cursor-pointer">
+<div class="relative rounded-lg border-2 border-success overflow-hidden">
+<img class="w-full h-32 object-cover" data-alt="Highland lake reflection" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDWGXTNz_MgmDi2_XGGPz7WA_BzgOMDbZ811nYTvoYCi3tNBwLXlaWtfNMhI6MpY7qvzgFQJONyYWrGauJOEKDBbB2C1PIEAu_SLsJ8G58iB_mFQLMd8n5RQY1nexz0LcESgNQpfV93eKxN9smtYIJvGUBcOBgKbYfAX0XWxFMJDluLmZ2NfWS0ADnti4QVo8ljy4qnLZR5XyAnHKhtQF70LoRToPsEJ3Q5pHdIqS-cy12WiI9DI1nOqUTIWXrwbL9eOL0-3bOEhjk"/>
+<div class="absolute top-1 right-1 bg-primary text-[9px] font-bold px-1.5 py-0.5 rounded text-white">GPX</div>
+</div>
+</div>
+<div class="flex-shrink-0 w-40 group cursor-pointer">
+<div class="relative rounded-lg border-2 border-success overflow-hidden">
+<img class="w-full h-32 object-cover" data-alt="Snowy peak mountains" src="https://lh3.googleusercontent.com/aida-public/AB6AXuB_VG5n67EtC9r8Qp7z8ibu9_Cse9cn1AMJOiOyj8HjGJZC2S0cy6Q6-BvC0y7bStlf64npYNj3y21xr516o-WKteSALNhLjT6-o45CcogaF9ZTSgBInaXan48luELPVY66Dnm9iIulVO7HT38F7ase8SI0kt_aJkapvT_JXzrcNCrqSpF2k4QYPuPvpOX3FePcD6DtoBMKhpEPPx0DRDZra-ltY4RlTgYCQYje-ZFjPVydZitZaLzX1dWdbBGdKLUE2kLgV593QrE"/>
+<div class="absolute top-1 right-1 bg-primary text-[9px] font-bold px-1.5 py-0.5 rounded text-white">GPX</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!-- Right Side: Details Panel -->
+<aside class="w-80 border-l border-slate-200 dark:border-slate-800 bg-white dark:bg-background-dark/30 p-5 overflow-y-auto">
+<h3 class="text-xs font-bold text-slate-500 uppercase tracking-widest mb-6">Metadata Inspector</h3>
+<div class="space-y-6">
+<section>
+<h4 class="text-xs font-semibold text-primary mb-3 flex items-center gap-2">
+<span class="material-icons text-xs">camera_alt</span> Image Information
+                    </h4>
+<div class="space-y-2 text-sm">
+<div class="flex justify-between py-1 border-b border-slate-800/50">
+<span class="text-slate-500">Model</span>
+<span class="font-medium">Sony A7R IV</span>
+</div>
+<div class="flex justify-between py-1 border-b border-slate-800/50">
+<span class="text-slate-500">Lens</span>
+<span class="font-medium">24-70mm f/2.8</span>
+</div>
+<div class="flex justify-between py-1">
+<span class="text-slate-500">EXIF Time</span>
+<span class="font-mono text-xs">14:22:10.244</span>
+</div>
+</div>
+</section>
+<section>
+<h4 class="text-xs font-semibold text-primary mb-3 flex items-center gap-2">
+<span class="material-icons text-xs">place</span> GPS Match Details
+                    </h4>
+<div class="p-3 bg-slate-800/30 rounded-lg border border-slate-700 space-y-3">
+<div>
+<p class="text-[10px] text-slate-500 uppercase font-bold">Matched Coordinates</p>
+<p class="text-sm font-mono mt-1">64.1265° N, 21.8174° W</p>
+</div>
+<div class="grid grid-cols-2 gap-4">
+<div>
+<p class="text-[10px] text-slate-500 uppercase font-bold">Altitude</p>
+<p class="text-sm font-mono mt-1">412m</p>
+</div>
+<div>
+<p class="text-[10px] text-slate-500 uppercase font-bold">Precision</p>
+<p class="text-sm font-mono mt-1 text-success">±2.4m</p>
+</div>
+</div>
+</div>
+</section>
+<div class="pt-4 border-t border-slate-800">
+<button class="w-full bg-slate-800 hover:bg-slate-700 text-slate-300 py-2.5 rounded-lg text-sm font-semibold border border-slate-700 transition-colors flex items-center justify-center gap-2 mb-3">
+<span class="material-icons text-sm">edit</span>
+                        Manual Correction
+                    </button>
+<button class="w-full bg-slate-800 hover:bg-slate-700 text-slate-300 py-2.5 rounded-lg text-sm font-semibold border border-slate-700 transition-colors flex items-center justify-center gap-2">
+<span class="material-icons text-sm">map</span>
+                        View in Google Earth
+                    </button>
+</div>
+</div>
+</aside>
+</main>
+<!-- Footer / Keyboard Shortcuts -->
+<footer class="h-10 border-t border-slate-200 dark:border-slate-800 flex items-center justify-between px-6 bg-slate-900/80 text-[10px] text-slate-500 font-medium">
+<div class="flex gap-4">
+<span><kbd class="bg-slate-800 px-1 rounded text-slate-300">Space</kbd> Play Track</span>
+<span><kbd class="bg-slate-800 px-1 rounded text-slate-300">T</kbd> Open Offset</span>
+<span><kbd class="bg-slate-800 px-1 rounded text-slate-300">⌘+S</kbd> Save Progress</span>
+</div>
+<div class="flex items-center gap-4">
+<span class="flex items-center gap-1"><span class="material-icons text-[12px]">cloud_done</span> All Changes Synced</span>
+<span class="text-slate-400">Ver 2.4.12-Stable</span>
+</div>
+</footer>
+</body></html>
