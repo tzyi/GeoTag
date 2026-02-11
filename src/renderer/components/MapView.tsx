@@ -32,7 +32,7 @@ const MapRecenter: React.FC<{ target?: GpsCoordinates | null }> = ({ target }) =
     if (sameAsLast) return;
 
     map.flyTo([target.lat, target.lng], map.getZoom(), {
-      animate: true,
+      animate: false,
       duration: 0.8,
     });
     lastTarget.current = target;
