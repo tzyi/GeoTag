@@ -21,14 +21,17 @@ const PhotoDropzone: React.FC = () => {
       
       if (!supportedExtensions.includes(ext)) continue;
 
+      const blobUrl = URL.createObjectURL(file);
+      const isElectron = !!window.electron;
       const photo: Photo = {
         id: uuidv4(),
         fileName: file.name,
-        filePath: URL.createObjectURL(file),
+        filePath: isElectron ? '' : blobUrl, // Electron 下 filePath 由主程序決定
         selected: false,
         exif: null,
         gps: null,
         status: 'idle',
+        ...(isElectron ? {} : { thumbnail: blobUrl }), // 僅瀏覽器模式預設 thumbnail
       };
 
       photos.push(photo);

@@ -3,38 +3,49 @@ import { usePhotoStore } from '../store/photoStore';
 import type { Photo } from '@shared/types';
 
 const PhotoSidebar: React.FC = () => {
-  const { photos, selectedPhotoIds, togglePhotoSelection, selectAllPhotos, deselectAllPhotos, setCurrentPhoto } =
+  const { photos, selectedPhotoIds, togglePhotoSelection, selectAllPhotos, deselectAllPhotos, setCurrentPhoto, updatePhoto, clearPhotos } =
     usePhotoStore();
   const [thumbnails, setThumbnails] = useState<Record<string, string>>({});
 
   // Load thumbnails
   useEffect(() => {
     const loadThumbnails = async () => {
+      const newThumbnails: Record<string, string> = { ...thumbnails };
+      let updated = false;
       for (const photo of photos) {
-        if (!thumbnails[photo.id]) {
+        if (!newThumbnails[photo.id]) {
           try {
             let thumbnail: string;
-            
-            // Check if Electron API is available
-            if (window.electron && typeof window.electron.getPhotoThumbnail === 'function') {
+            // First, check if photo already has thumbnail
+            if (photo.thumbnail) {
+              thumbnail = photo.thumbnail;
+            } else if (photo.filePath.startsWith('blob:')) {
+              // 如果是 blob URL，直接用 filePath 當縮圖
+              thumbnail = photo.filePath;
+            } else if (window.electron && typeof window.electron.getPhotoThumbnail === 'function') {
+              // Electron 模式下，filePath 應為本機檔案路徑，呼叫主程序產生縮圖
               thumbnail = await window.electron.getPhotoThumbnail(photo.filePath);
+              updatePhoto(photo.id, { thumbnail });
             } else {
-              // Fallback: use the filePath directly (which is a blob URL in browser mode)
+              // 其他情況 fallback
               thumbnail = photo.filePath;
             }
-            
-            setThumbnails((prev) => ({ ...prev, [photo.id]: thumbnail }));
+            newThumbnails[photo.id] = thumbnail;
+            updated = true;
           } catch (error) {
             console.error(`Failed to load thumbnail for ${photo.fileName}:`, error);
           }
         }
       }
+      if (updated) {
+        setThumbnails(newThumbnails);
+      }
     };
-
     if (photos.length > 0) {
       loadThumbnails();
     }
-  }, [photos, thumbnails]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [photos]);
 
   const handleSelectAll = () => {
     if (selectedPhotoIds.size === photos.length) {
@@ -60,6 +71,19 @@ const PhotoSidebar: React.FC = () => {
           <span className="px-2 py-1 text-xs font-semibold bg-primary/20 text-primary rounded">
             {photos.length}
           </span>
+          {/* 清除所有照片按鈕 */}
+          {photos.length > 0 && (
+            <button
+              className="ml-2 px-2 py-1 text-xs bg-red-100 text-red-600 rounded hover:bg-red-200 transition"
+              title="清除所有照片"
+              onClick={() => {
+                clearPhotos();
+                setThumbnails({});
+              }}
+            >
+              清除所有照片
+            </button>
+          )}
         </div>
         {photos.length > 0 && (
           <div className="flex items-center justify-between text-sm">

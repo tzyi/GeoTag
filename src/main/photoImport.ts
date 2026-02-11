@@ -1,5 +1,5 @@
-import { dialog } from 'electron';
-import { readdir, readFile, stat } from 'fs/promises';
+import { dialog, nativeImage } from 'electron';
+import { stat } from 'fs/promises';
 import path from 'path';
 import { v4 as uuidv4 } from 'uuid';
 import type { Photo } from '@shared/types';
@@ -34,6 +34,20 @@ export async function importPhotos(): Promise<Photo[]> {
       const ext = path.extname(filepath).toLowerCase();
       if (!SUPPORTED_EXTENSIONS.includes(ext)) continue;
 
+      // Generate thumbnail using nativeImage
+      let thumbnail: string | undefined;
+      try {
+        const thumbnailImage = await nativeImage.createThumbnailFromPath(filepath, {
+          width: 256,
+          height: 256,
+        });
+        if (!thumbnailImage.isEmpty()) {
+          thumbnail = thumbnailImage.toDataURL();
+        }
+      } catch (error) {
+        console.error(`Failed to generate thumbnail for: ${filepath}`, error);
+      }
+
       const photo: Photo = {
         id: uuidv4(),
         fileName: path.basename(filepath),
@@ -42,6 +56,7 @@ export async function importPhotos(): Promise<Photo[]> {
         exif: null,
         gps: null,
         status: 'idle',
+        thumbnail,
       };
 
       photos.push(photo);

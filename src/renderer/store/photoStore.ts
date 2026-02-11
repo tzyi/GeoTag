@@ -10,6 +10,7 @@ interface PhotoStore {
   setPhotos: (photos: Photo[]) => void;
   addPhotos: (photos: Photo[]) => void;
   removePhotos: (photoIds: string[]) => void;
+  clearPhotos: () => void;
   updatePhoto: (photoId: string, updates: Partial<Photo>) => void;
   togglePhotoSelection: (photoId: string) => void;
   selectAllPhotos: () => void;
@@ -38,10 +39,18 @@ export const usePhotoStore = create<PhotoStore>((set, get) => ({
       ),
     })),
 
+
   updatePhoto: (photoId, updates) =>
     set((state) => ({
       photos: state.photos.map((p) => (p.id === photoId ? { ...p, ...updates } : p)),
     })),
+
+  clearPhotos: () =>
+    set({
+      photos: [],
+      selectedPhotoIds: new Set(),
+      currentPhotoId: null,
+    }),
 
   togglePhotoSelection: (photoId) =>
     set((state) => {
