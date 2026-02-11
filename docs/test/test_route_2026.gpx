@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<gpx version="1.1" creator="Gemini AI Tester" xmlns="http://www.topografix.com/GPX/1/1">
+  <metadata>
+    <name>2026年春節信義區散步測試</name>
+    <time>2026-01-29T06:00:00Z</time>
+  </metadata>
+  <trk>
+    <name>台北101周邊路徑</name>
+    <trkseg>
+      <trkpt lat="25.033671" lon="121.564427">
+        <ele>10.0</ele>
+        <time>2026-01-29T06:00:00Z</time>
+      </trkpt>
+      <trkpt lat="25.034166" lon="121.566270">
+        <ele>12.0</ele>
+        <time>2026-01-29T06:15:00Z</time>
+      </trkpt>
+      <trkpt lat="25.035515" lon="121.567042">
+        <ele>11.5</ele>
+        <time>2026-01-29T06:30:00Z</time>
+      </trkpt>
+      <trkpt lat="25.036648" lon="121.567150">
+        <ele>11.0</ele>
+        <time>2026-01-29T06:50:00Z</time>
+      </trkpt>
+      <trkpt lat="25.037533" lon="121.563721">
+        <ele>10.5</ele>
+        <time>2026-01-29T07:15:00Z</time>
+      </trkpt>
+      <trkpt lat="25.039200" lon="121.560000">
+        <ele>10.0</ele>
+        <time>2026-01-29T07:40:00Z</time>
+      </trkpt>
+      <trkpt lat="25.040000" lon="121.558500">
+        <ele>9.5</ele>
+        <time>2026-01-29T08:00:00Z</time>
+      </trkpt>
+    </trkseg>
+  </trk>
+</gpx>

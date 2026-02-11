@@ -8,7 +8,7 @@
 [背景資訊]
 使用者需要透過導入 GPX 軌跡文件，自動為大量照片標記位置。由於時間戳可能存在誤差，介面必須允許手動微調與即時預覽。
 
-[具體指令]
+[功能邏輯]
 
 - 左側控制區 (Sidebar)：在「匯入照片」下方新增一個「匯入 GPX 軌跡」按鈕（建議使用不同的按鈕樣式或邊框色）。當 GPX 匯入後，列出軌跡段資訊（時間起訖、總里程）。
 
@@ -33,4 +33,16 @@
 
 - 地圖圖層切換：
     由於 OpenStreetMap 在某些地區不夠細緻，建議在 UI 右上角加入一個簡易的圖層切換器（街道圖 / 衛星圖），這對於「手動微調」特定路口的位置非常有幫助。
+```
+
+## Plan
+
+```
+/speckit.plan UI 與樣式設計：
+- 請幫我參考 docs\ui\02-gpx\stitch_professional_photo_gps_tagger_dashboard\code.html 與 docs\ui\02-gpx\GPX Track Matching and Adjustment View\code.html的設計,打造一個專業且現代化的使用者介面
+- Tailwind CSS 3+ 用於樣式設計
+- Radix UI 或 shadcn/ui 提供無障礙元件(對話框、下拉選單)
+- react-markdown 用於 Markdown 渲染
+- CodeMirror 6 作為編輯器,支援 Markdown 語法高亮
+
 ```
