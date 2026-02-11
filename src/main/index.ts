@@ -1,14 +1,18 @@
 import { app, BrowserWindow, ipcMain } from 'electron';
+import { Menu } from 'electron';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import { getSetting, setSetting } from './settings';
 import type { AppSettings } from '@shared/types';
+
 
 // 取得 ESM 模式下的 __dirname 替代方案
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 let mainWindow: BrowserWindow | null = null;
+
+
 
 const createWindow = () => {
   const preloadPath = path.join(__dirname, '../preload/index.cjs');
@@ -108,6 +112,8 @@ function registerIpcHandlers() {
 }
 
 app.whenReady().then(() => {
+  // 移除原生選單欄，僅在 app ready 時執行
+  Menu.setApplicationMenu(null);
   registerIpcHandlers();
   createWindow();
 
