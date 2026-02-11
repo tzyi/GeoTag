@@ -7,6 +7,13 @@
 
 GeoTag Pro 是一個專業的桌面應用程式，讓您輕鬆為照片批量添加 GPS 座標資訊到 EXIF 元資料中。
 
+
+## 🖼️ Screenshots
+
+![screenshot1](docs/img/geotag.png)
+![screenshot2](docs/img/select.png)
+
+
 ## ✨ 主要功能
 
 - **批量匯入照片**: 支援 JPG、PNG、TIFF 格式
@@ -56,6 +63,19 @@ npm run dist
 4. **寫入 GPS**: 點擊「寫入 GPS 至所選照片」按鈕
 5. **確認結果**: 查看進度動畫，成功的照片會顯示綠色勾選標記
 
+
+## 🧑‍💻 測試與開發
+
+### 執行測試（如有）
+```bash
+npm run test
+```
+### 程式碼格式檢查
+```bash
+npm run lint
+```
+> 若尚未有測試，建議未來補上單元測試與 CI。
+
 ## 🏗️ 技術架構
 
 - **前端框架**: React 18 + TypeScript
@@ -92,6 +112,14 @@ GeoTag/
 └── package.json
 ```
 
+## 🙋 FAQ & 常見問題
+
+**Q: 啟動時出現 node-gyp 或 native module 編譯錯誤？**
+A: 請確認已安裝 Visual Studio Build Tools 並重啟終端機。
+
+**Q: 地圖無法載入？**
+A: 請檢查網路連線，或參考 [docs/FAQ.md](docs/FAQ.md) 取得更多協助。
+
 ## 🔒 安全性
 
 GeoTag Pro 遵循 Electron 安全最佳實踐：
@@ -106,9 +134,17 @@ GeoTag Pro 遵循 Electron 安全最佳實踐：
 
 歡迎提交 Pull Request 或開 Issue 回報問題！
 
+### 貢獻流程
+1. Fork 本專案
+2. 建立分支（如 `feat/your-feature`）
+3. 提交 PR，請詳述修改內容與測試方式
+4. 通過審查後合併
+
+請遵守 [CODE_OF_CONDUCT.md](CODE_OF_CONDUCT.md)（如有）
+
 ## 📄 授權
 
-MIT License - 詳見 [LICENSE](LICENSE) 檔案
+本專案採用 MIT License，詳見 [LICENSE](LICENSE) 檔案。
 
 ## 🙏 致謝
 
@@ -121,3 +157,7 @@ MIT License - 詳見 [LICENSE](LICENSE) 檔案
 
 **開發者**: GeoTag Pro Team  
 **最後更新**: 2026-02-11
+
+## 📝 Changelog
+
+請參見 [CHANGELOG.md](CHANGELOG.md) 以獲取發行紀錄。
