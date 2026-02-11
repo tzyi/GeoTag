@@ -5,34 +5,48 @@ import type { GpsCoordinates } from '@shared/types';
 
 interface GpsWritePanelProps {
   currentCoordinates: GpsCoordinates | null;
-  onClose: () => void;
 }
 
-const GpsWritePanel: React.FC<GpsWritePanelProps> = ({ currentCoordinates, onClose }) => {
+const GpsWritePanel: React.FC<GpsWritePanelProps> = ({ currentCoordinates }) => {
   const { getSelectedPhotos, updatePhoto } = usePhotoStore();
   const { progress, isWriting, setProgress, setIsWriting, resetProgress } = useBatchStatusStore();
 
   const selectedPhotos = getSelectedPhotos();
 
   useEffect(() => {
-    // Listen for GPS write progress
-    const handleProgress = (progressData: { completed: number; total: number; failed: number }) => {
-      setProgress({
-        total: progressData.total,
-        completed: progressData.completed,
-        failed: progressData.failed,
-      });
+    // Listen for GPS write progress (only if Electron API is available)
+    if (!window.electron || typeof window.electron.on !== 'function') {
+      return;
+    }
+
+    const handleProgress = (...args: unknown[]) => {
+      if (args && args.length === 1 && typeof args[0] === 'object' && args[0] !== null) {
+        const progressData = args[0] as { completed: number; total: number; failed: number };
+        setProgress({
+          total: progressData.total,
+          completed: progressData.completed,
+          failed: progressData.failed,
+        });
+      }
     };
 
     window.electron.on('gps:writeProgress', handleProgress);
 
     return () => {
-      window.electron.off('gps:writeProgress', handleProgress);
+      if (window.electron && typeof window.electron.off === 'function') {
+        window.electron.off('gps:writeProgress', handleProgress);
+      }
     };
   }, [setProgress]);
 
   const handleWriteGps = useCallback(async () => {
     if (!currentCoordinates || selectedPhotos.length === 0) return;
+
+    // Check if Electron API is available
+    if (!window.electron || typeof window.electron.writeGpsToPhotos !== 'function') {
+      alert('GPS 寫入功能需要在 Electron 桌面環境中執行');
+      return;
+    }
 
     try {
       setIsWriting(true);

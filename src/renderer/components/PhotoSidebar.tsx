@@ -13,7 +13,16 @@ const PhotoSidebar: React.FC = () => {
       for (const photo of photos) {
         if (!thumbnails[photo.id]) {
           try {
-            const thumbnail = await window.electron.getPhotoThumbnail(photo.filePath);
+            let thumbnail: string;
+            
+            // Check if Electron API is available
+            if (window.electron && typeof window.electron.getPhotoThumbnail === 'function') {
+              thumbnail = await window.electron.getPhotoThumbnail(photo.filePath);
+            } else {
+              // Fallback: use the filePath directly (which is a blob URL in browser mode)
+              thumbnail = photo.filePath;
+            }
+            
             setThumbnails((prev) => ({ ...prev, [photo.id]: thumbnail }));
           } catch (error) {
             console.error(`Failed to load thumbnail for ${photo.fileName}:`, error);

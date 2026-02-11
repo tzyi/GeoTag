@@ -30,5 +30,6 @@
     }
   },
   "include": ["src/renderer/**/*", "src/shared/**/*"],
+  "exclude": ["dist", "dist-electron", "release", "node_modules"],
   "references": [{ "path": "./tsconfig.main.json" }]
 }

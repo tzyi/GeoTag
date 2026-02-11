@@ -112,7 +112,6 @@ const App: React.FC = () => {
               />
               <GpsWritePanel
                 currentCoordinates={currentCoords}
-                onClose={() => {}}
               />
             </>
           )}

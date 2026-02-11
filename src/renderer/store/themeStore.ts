@@ -1,5 +1,4 @@
 import { create } from 'zustand';
-import type { AppSettings } from '@shared/types';
 
 interface ThemeStore {
   theme: 'dark' | 'light';
@@ -22,8 +21,13 @@ export const useThemeStore = create<ThemeStore>((set) => ({
         document.documentElement.classList.remove('dark');
       }
 
-      // Save to settings
-      window.electron.setSetting('theme', newTheme);
+      // Save to settings (if Electron API is available)
+      if (window.electron && typeof window.electron.setSetting === 'function') {
+        window.electron.setSetting('theme', newTheme);
+      } else {
+        // Fallback to localStorage
+        localStorage.setItem('theme', newTheme);
+      }
 
       return { theme: newTheme };
     });
@@ -37,24 +41,38 @@ export const useThemeStore = create<ThemeStore>((set) => ({
       document.documentElement.classList.remove('dark');
     }
 
-    // Save to settings
-    window.electron.setSetting('theme', theme);
+    // Save to settings (if Electron API is available)
+    if (window.electron && typeof window.electron.setSetting === 'function') {
+      window.electron.setSetting('theme', theme);
+    } else {
+      // Fallback to localStorage
+      localStorage.setItem('theme', theme);
+    }
 
     set({ theme });
   },
 
   initTheme: async () => {
     try {
-      const savedTheme = await window.electron.getSetting('theme');
-      if (savedTheme) {
-        set((state) => {
+      let savedTheme: string | undefined;
+      
+      // Try to load from Electron settings
+      if (window.electron && typeof window.electron.getSetting === 'function') {
+        savedTheme = await window.electron.getSetting('theme');
+      } else {
+        // Fallback to localStorage
+        savedTheme = localStorage.getItem('theme') || undefined;
+      }
+      
+      if (savedTheme && (savedTheme === 'dark' || savedTheme === 'light')) {
+        set(() => {
           // Update DOM
           if (savedTheme === 'dark') {
             document.documentElement.classList.add('dark');
           } else {
             document.documentElement.classList.remove('dark');
           }
-          return { theme: savedTheme };
+          return { theme: savedTheme as 'dark' | 'light' };
         });
       }
     } catch (error) {

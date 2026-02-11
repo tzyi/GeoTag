@@ -17,18 +17,26 @@ const ExifDrawer: React.FC<ExifDrawerProps> = ({ isOpen, onClose }) => {
   useEffect(() => {
     if (isOpen && currentPhoto) {
       setLoading(true);
-      window.electron
-        .readExif(currentPhoto.filePath)
-        .then((data) => {
-          setExifData(data);
-        })
-        .catch((error) => {
-          console.error('Failed to read EXIF:', error);
-          setExifData(null);
-        })
-        .finally(() => {
-          setLoading(false);
-        });
+      
+      // Check if Electron API is available
+      if (window.electron && typeof window.electron.readExif === 'function') {
+        window.electron
+          .readExif(currentPhoto.filePath)
+          .then((data) => {
+            setExifData(data);
+          })
+          .catch((error) => {
+            console.error('Failed to read EXIF:', error);
+            setExifData(null);
+          })
+          .finally(() => {
+            setLoading(false);
+          });
+      } else {
+        // No Electron API available, use photo's existing EXIF data
+        setExifData(currentPhoto.exif);
+        setLoading(false);
+      }
     }
   }, [isOpen, currentPhoto]);
 

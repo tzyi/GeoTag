@@ -6,6 +6,7 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
+    "electron:dev": "vite build && electron dist-electron/main/index.js",
     "build": "tsc && vite build && electron-builder",
     "build:renderer": "vite build",
     "build:main": "tsc -p tsconfig.main.json",
