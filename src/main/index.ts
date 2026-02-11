@@ -1,7 +1,13 @@
+
 import { app, BrowserWindow, ipcMain } from 'electron';
 import path from 'path';
+import { fileURLToPath } from 'url';
 import { getSetting, setSetting } from './settings';
 import type { AppSettings } from '@shared/types';
+
+// 取得 ESM 模式下的 __dirname 替代方案
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 let mainWindow: BrowserWindow | null = null;
 

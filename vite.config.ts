@@ -13,6 +13,10 @@ export default defineConfig({
         vite: {
           build: {
             outDir: 'dist-electron/main',
+            target: 'node20',
+            rollupOptions: {
+              external: ['electron'],
+            },
           },
         },
       },
@@ -24,6 +28,10 @@ export default defineConfig({
         vite: {
           build: {
             outDir: 'dist-electron/preload',
+            target: 'node20',
+            rollupOptions: {
+              external: ['electron'],
+            },
           },
         },
       },
