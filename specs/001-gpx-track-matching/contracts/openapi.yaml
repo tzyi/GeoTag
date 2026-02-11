@@ -1,0 +1,177 @@
+openapi: 3.0.3
+info:
+  title: GPX Track Matching API
+  version: 1.0.0
+paths:
+  /gpx/import:
+    post:
+      summary: 匯入 GPX 軌跡檔案
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                file:
+                  type: string
+                  format: binary
+      responses:
+        '200':
+          description: 匯入成功，回傳軌跡資訊
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GPXTrack'
+        '400':
+          description: 檔案格式錯誤
+  /photo/match:
+    post:
+      summary: 自動匹配照片
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                photos:
+                  type: array
+                  items:
+                    $ref: '#/components/schemas/Photo'
+                gpxTrackId:
+                  type: string
+      responses:
+        '200':
+          description: 匹配結果
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/MatchedMarker'
+  /photo/exif:
+    post:
+      summary: 寫入 EXIF
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                photoId:
+                  type: string
+                lat:
+                  type: number
+                lon:
+                  type: number
+      responses:
+        '200':
+          description: EXIF 寫入成功
+        '400':
+          description: EXIF 寫入失敗
+  /photo/reset:
+    post:
+      summary: 重設回軌跡點
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                photoId:
+                  type: string
+      responses:
+        '200':
+          description: 重設成功
+  /gpx/offset:
+    post:
+      summary: 時間偏移調整
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                gpxTrackId:
+                  type: string
+                offsetSeconds:
+                  type: number
+      responses:
+        '200':
+          description: 標記集體移動結果
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/MatchedMarker'
+components:
+  schemas:
+    GPXTrack:
+      type: object
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        startTime:
+          type: string
+          format: date-time
+        endTime:
+          type: string
+          format: date-time
+        distance:
+          type: number
+        points:
+          type: array
+          items:
+            $ref: '#/components/schemas/GPXPoint'
+    GPXPoint:
+      type: object
+      properties:
+        lat:
+          type: number
+        lon:
+          type: number
+        ele:
+          type: number
+        time:
+          type: string
+          format: date-time
+    Photo:
+      type: object
+      properties:
+        id:
+          type: string
+        fileName:
+          type: string
+        thumbnailUrl:
+          type: string
+        takenAt:
+          type: string
+          format: date-time
+        exifStatus:
+          type: string
+          enum: [pending, locked]
+        matchedPoint:
+          $ref: '#/components/schemas/GPXPoint'
+        adjustedLat:
+          type: number
+        adjustedLon:
+          type: number
+        offsetSeconds:
+          type: number
+    MatchedMarker:
+      type: object
+      properties:
+        photoId:
+          type: string
+        lat:
+          type: number
+        lon:
+          type: number
+        draggable:
+          type: boolean
+        offset:
+          type: number
+        thumbnailUrl:
+          type: string
