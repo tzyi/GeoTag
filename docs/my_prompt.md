@@ -137,3 +137,11 @@ EXIF 預覽區：
     資料模型：specs/main/data-model.md
     API 合約：specs/main/contracts/openapi.yaml
     快速開始：specs/main/quickstart.md
+
+
+
+# implement
+
+```
+/speckit.implement UI樣式請參考 /docs/ui/batch_gps_writing_progress_view/code.html 與 /docs/ui/professional_photo_gps_tagger_dashboard/code.html，且直到/specs/001-modern-electron-ui/tasks.md中的34個任務都完成，才可以停止實作階段。
+```
