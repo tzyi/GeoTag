@@ -5,7 +5,6 @@ import MapView from './components/MapView';
 import CoordinatePanel from './components/CoordinatePanel';
 import MapSearchBar from './components/MapSearchBar';
 import GpsWritePanel from './components/GpsWritePanel';
-import ExifDrawer from './components/ExifDrawer';
 import { usePhotoStore } from './store/photoStore';
 import { useThemeStore } from './store/themeStore';
 import { useBatchStatusStore } from './store/batchStatusStore';
@@ -16,19 +15,12 @@ const App: React.FC = () => {
   const { theme, toggleTheme, initTheme } = useThemeStore();
   const { progress, isWriting, setProgress, setIsWriting, resetProgress } = useBatchStatusStore();
   const [currentCoords, setCurrentCoords] = useState<GpsCoordinates | null>(null);
-  const [showExifDrawer, setShowExifDrawer] = useState(false);
   
   const selectedPhotos = getSelectedPhotos();
 
   useEffect(() => {
     initTheme();
   }, [initTheme]);
-
-  useEffect(() => {
-    if (currentPhotoId) {
-      setShowExifDrawer(true);
-    }
-  }, [currentPhotoId]);
 
   useEffect(() => {
     // Listen for GPS write progress (only if Electron API is available)
@@ -241,8 +233,7 @@ const App: React.FC = () => {
         </div>
       </main>
 
-      {/* EXIF Drawer */}
-      <ExifDrawer isOpen={showExifDrawer} onClose={() => setShowExifDrawer(false)} />
+      {/* EXIF Drawer 已移除 */}
     </div>
   );
 };
