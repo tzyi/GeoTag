@@ -1,11 +1,12 @@
-import React, { useState } from 'react';
-import { MapContainer, TileLayer, useMapEvents } from 'react-leaflet';
+import React, { useEffect, useRef, useState } from 'react';
+import { MapContainer, TileLayer, useMap, useMapEvents } from 'react-leaflet';
 import 'leaflet/dist/leaflet.css';
 import type { GpsCoordinates } from '@shared/types';
 
 interface MapViewProps {
   onCenterChange: (coords: GpsCoordinates) => void;
   initialCenter?: GpsCoordinates;
+  focusCoords?: GpsCoordinates | null;
 }
 
 const MapEventHandler: React.FC<{ onMove: (coords: GpsCoordinates) => void }> = ({ onMove }) => {
@@ -18,7 +19,29 @@ const MapEventHandler: React.FC<{ onMove: (coords: GpsCoordinates) => void }> = 
   return null;
 };
 
-const MapView: React.FC<MapViewProps> = ({ onCenterChange, initialCenter }) => {
+const MapRecenter: React.FC<{ target?: GpsCoordinates | null }> = ({ target }) => {
+  const map = useMap();
+  const lastTarget = useRef<GpsCoordinates | null>(null);
+
+  useEffect(() => {
+    if (!target) return;
+    const sameAsLast =
+      lastTarget.current &&
+      Math.abs(lastTarget.current.lat - target.lat) < 1e-9 &&
+      Math.abs(lastTarget.current.lng - target.lng) < 1e-9;
+    if (sameAsLast) return;
+
+    map.flyTo([target.lat, target.lng], map.getZoom(), {
+      animate: true,
+      duration: 0.8,
+    });
+    lastTarget.current = target;
+  }, [map, target]);
+
+  return null;
+};
+
+const MapView: React.FC<MapViewProps> = ({ onCenterChange, initialCenter, focusCoords }) => {
   const [center] = useState<GpsCoordinates>(initialCenter || { lat: 25.033, lng: 121.5654 });
 
   return (
@@ -34,6 +57,7 @@ const MapView: React.FC<MapViewProps> = ({ onCenterChange, initialCenter }) => {
           url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
         />
         <MapEventHandler onMove={onCenterChange} />
+        <MapRecenter target={focusCoords} />
       </MapContainer>
 
       {/* Crosshair in center */}

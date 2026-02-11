@@ -188,6 +188,7 @@ const App: React.FC = () => {
               <MapView
                 onCenterChange={setCurrentCoords}
                 initialCenter={{ lat: 25.033, lng: 121.5654 }}
+                focusCoords={currentCoords}
               />
 
               {/* Map Overlays */}
